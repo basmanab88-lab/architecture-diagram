@@ -98,6 +98,123 @@
   .meta-strip .pill.warn { color: var(--warn); border-color: rgba(240,184,110,0.4); }
   .meta-strip .pill.bad { color: var(--bad); border-color: rgba(224,113,107,0.4); }
 
+  /* ---------- Custom HTML flow diagram (Overview) ---------- */
+  .flowmap {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 28px;
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .flowmap-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px 18px;
+    background: rgba(255,255,255,0.015);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .flowmap-section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-faint);
+    margin: 0;
+  }
+  .flowmap-section-title .lbl-icon { margin-right: 6px; }
+  .flowmap-section-title .lbl-sub {
+    text-transform: none; letter-spacing: 0; color: var(--text-faint);
+    font-size: 11px; opacity: 0.7; margin-left: 6px;
+  }
+  .flowmap-row {
+    display: flex; flex-wrap: wrap; gap: 12px;
+    align-items: stretch;
+  }
+  .flowmap-row.center { justify-content: center; }
+  .flowmap-subgroup {
+    display: flex; align-items: center; gap: 10px;
+    flex: 0 1 auto;
+  }
+  .flowmap-subgroup-label {
+    font-size: 11px; color: var(--text-faint);
+    min-width: 110px; text-align: right;
+  }
+  .flowmap-card {
+    flex: 0 0 auto;
+    min-width: 170px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: var(--bg-elev-2);
+    border: 1.5px solid var(--border-strong);
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.12s, border-color 0.12s, background 0.12s;
+    color: var(--text);
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    justify-content: center;
+  }
+  .flowmap-card:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    transform: translateY(-2px);
+    text-decoration: none;
+  }
+  .flowmap-card .card-label { font-weight: 600; font-size: 13.5px; }
+  .flowmap-card .card-sub {
+    font-size: 11px; color: var(--text-faint);
+    line-height: 1.3;
+  }
+  /* color variants */
+  .flowmap-card.user { border-color: var(--accent); background: rgba(122,162,255,0.08); }
+  .flowmap-card.core { border-color: var(--core); }
+  .flowmap-card.shared { border-color: var(--shared); background: rgba(240,184,110,0.05); }
+  .flowmap-card.product { border-color: var(--product); }
+  .flowmap-card.cloud { border-color: var(--good); background: rgba(108,210,138,0.05); }
+  .flowmap-card.ext { border-color: #c98cff; }
+  .flowmap-card.enduser { border-color: #e0716b; background: rgba(224,113,107,0.05); }
+
+  .flowmap-arrow {
+    align-self: center;
+    color: var(--text-faint);
+    font-size: 11.5px;
+    padding: 2px 12px;
+    background: rgba(255,255,255,0.025);
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    margin: -2px 0;
+  }
+  .flowmap-arrow::before { content: "↓ "; opacity: 0.7; }
+
+  /* ---------- Custom tooltip (universal — works on flowmap + mermaid) ---------- */
+  .custom-tooltip {
+    position: fixed;
+    background: var(--bg-elev-2);
+    color: var(--text);
+    border: 1px solid var(--accent);
+    border-radius: 7px;
+    padding: 9px 13px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    max-width: 380px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.55);
+    z-index: 99999;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.12s, transform 0.12s;
+  }
+  .custom-tooltip.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
   /* ---------- Diagram container ---------- */
   .diagram {
     background: var(--bg-elev);
@@ -106,7 +223,7 @@
     margin: 20px 0;
     position: relative;
     overflow: hidden;
-    height: 680px;
+    height: 820px;
   }
   .diagram .mermaid {
     width: 100%;
@@ -137,19 +254,6 @@
   /* svg-pan-zoom control buttons styling */
   .diagram svg [id*="svg-pan-zoom"] rect { fill: rgba(19,23,34,0.85) !important; stroke: var(--border) !important; }
   .diagram svg [id*="svg-pan-zoom"] path { fill: var(--text-dim) !important; }
-  /* Mermaid tooltip styling */
-  .mermaidTooltip {
-    background: var(--bg-elev-2) !important;
-    color: var(--text) !important;
-    border: 1px solid var(--accent) !important;
-    border-radius: 6px !important;
-    padding: 8px 12px !important;
-    font-size: 12.5px !important;
-    max-width: 320px !important;
-    line-height: 1.4 !important;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
-    z-index: 9999 !important;
-  }
 
   /* ---------- Cards ---------- */
   .grid-two {
@@ -298,115 +402,167 @@
     <p class="lede">Bird's-eye view of Basman's product factory. The boxes are systems; the arrows are how data and code flow between them. Click any box to jump to its GitHub repo.</p>
   </div>
 
-  <div class="diagram">
-    <pre class="mermaid">
-flowchart TB
+  <div class="flowmap">
 
-  Basman(["👤 Basman"])
+    <!-- 1. Basman -->
+    <div class="flowmap-row center">
+      <a class="flowmap-card user" href="#/operation"
+         data-tooltip="You. The product manager and builder. Writes prompts in VS Code; Claude Code does the typing.">
+        <div class="card-label">👤 Basman</div>
+        <div class="card-sub">writes prompts in VS Code</div>
+      </a>
+    </div>
+    <div class="flowmap-arrow">types prompts</div>
 
-  subgraph WS [" 💻 Workstation — your laptop "]
-    direction LR
-    CC["Claude Code CLI"]
-    Hooks["~/.claude hooks"]
-    CC --- Hooks
-  end
+    <!-- 2. Workstation -->
+    <div class="flowmap-section">
+      <div class="flowmap-section-title"><span class="lbl-icon">💻</span>Workstation<span class="lbl-sub">your laptop — C:\Users\User</span></div>
+      <div class="flowmap-row center">
+        <a class="flowmap-card" href="#/operation"
+           data-tooltip="Claude Code CLI — the AI agent running in your terminal. Writes code, edits files, runs commands. Has access to your memory + skills + hooks.">
+          <div class="card-label">Claude Code CLI</div>
+          <div class="card-sub">the AI that writes code for you</div>
+        </a>
+        <a class="flowmap-card" href="#/claude-config"
+           data-tooltip="~/.claude hooks — Local automations. Auto-loads cross-product principles into prompts, syncs state to GitHub on every session end, detects learnings from transcripts.">
+          <div class="card-label">~/.claude hooks</div>
+          <div class="card-sub">auto-inject + auto-sync + detect</div>
+        </a>
+      </div>
+    </div>
+    <div class="flowmap-arrow">git push (manual + auto from Stop hook)</div>
 
-  Basman -->|"writes prompts"| CC
+    <!-- 3. GitHub -->
+    <div class="flowmap-section">
+      <div class="flowmap-section-title"><span class="lbl-icon">🐙</span>GitHub<span class="lbl-sub">basmanab88-lab — source of truth</span></div>
 
-  subgraph GH [" 🐙 GitHub — basmanab88-lab (source of truth) "]
-    direction TB
+      <div class="flowmap-row">
+        <div class="flowmap-subgroup-label">Core / Brain</div>
+        <a class="flowmap-card core" href="#/basman-brain"
+           data-tooltip="basman-brain — Your personal/career knowledge. Markdown files every Claude session reads at the start of any career conversation.">
+          <div class="card-label">basman-brain</div>
+          <div class="card-sub">your career knowledge</div>
+        </a>
+        <a class="flowmap-card core" href="#/claude-config"
+           data-tooltip="claude-config — GitHub backup of Claude's operational state (hooks, skills, memory, settings). Auto-synced from ~/.claude. Any new machine restores in one command.">
+          <div class="card-label">claude-config</div>
+          <div class="card-sub">Claude's backup state</div>
+        </a>
+      </div>
 
-    subgraph CB_GROUP [" Core / Brain (knowledge, not products) "]
-      direction LR
-      BB["basman-brain"]
-      CFG["claude-config"]
-    end
+      <div class="flowmap-row">
+        <div class="flowmap-subgroup-label">Shared module</div>
+        <a class="flowmap-card shared" href="#/calendar-skills"
+           data-tooltip="calendar-skills — Shared TypeScript module for Google Calendar + Hebrew/English time parsing. Used by T-800 + HandyMan via raw URL import. One fix, every product.">
+          <div class="card-label">calendar-skills</div>
+          <div class="card-sub">consumed by T-800 + HandyMan at runtime</div>
+        </a>
+      </div>
 
-    subgraph SH_GROUP [" Shared module "]
-      CS["calendar-skills"]
-    end
+      <div class="flowmap-row">
+        <div class="flowmap-subgroup-label">Product repos</div>
+        <a class="flowmap-card product" href="#/t-800"
+           data-tooltip="T-800 — Your personal assistant bot. Calendar, scheduling, WhatsApp-first. React frontend + Supabase Edge Function backend.">
+          <div class="card-label">t-800</div>
+          <div class="card-sub">personal assistant bot</div>
+        </a>
+        <a class="flowmap-card product" href="#/handyman"
+           data-tooltip="HandyMan — WhatsApp bot for a handyman business. Reads/writes a canonical Google Sheet via Claude + Google Sheets API.">
+          <div class="card-label">handyman</div>
+          <div class="card-sub">handyman business bot</div>
+        </a>
+        <a class="flowmap-card product" href="#/career-muse-os"
+           data-tooltip="Career Muse OS — Your job-hunting OS. Tracks applications, enriches leads, drafts outreach. Long-term: a fully autonomous career agent.">
+          <div class="card-label">career-muse-os</div>
+          <div class="card-sub">your job-hunting OS</div>
+        </a>
+        <a class="flowmap-card product" href="#/money-machine"
+           data-tooltip="Money Machine — Crypto trading bot (built, deposit blocked) + multi-language content site generator.">
+          <div class="card-label">money-machine</div>
+          <div class="card-sub">trading + content empire</div>
+        </a>
+      </div>
+    </div>
+    <div class="flowmap-arrow">auto-deploy on push (Vercel + Supabase webhooks)</div>
 
-    subgraph PR_GROUP [" Product repos "]
-      direction LR
-      T800["t-800"]
-      HM["handyman"]
-      CMOS["career-muse-os"]
-      MMT["money-machine"]
-    end
-  end
+    <!-- 4. Cloud Hosting -->
+    <div class="flowmap-section">
+      <div class="flowmap-section-title"><span class="lbl-icon">☁️</span>Cloud Hosting<span class="lbl-sub">where products actually run</span></div>
+      <div class="flowmap-row center">
+        <a class="flowmap-card cloud" href="#/vercel"
+           data-tooltip="Vercel — Hosts your React frontends. Auto-deploys on every git push, except HandyMan's web/ which needs manual `vercel --prod`.">
+          <div class="card-label">Vercel</div>
+          <div class="card-sub">web frontends (React)</div>
+        </a>
+        <a class="flowmap-card cloud" href="#/supabase-shared"
+           data-tooltip="Shared Supabase project — Postgres database + serverless Edge Functions (small TypeScript backends that run on-demand). 22 tables, 21 functions. Powers T-800 + HandyMan from one place.">
+          <div class="card-label">Supabase: shared project</div>
+          <div class="card-sub">T-800 + HandyMan · 22 tables · 21 Edge Functions</div>
+        </a>
+        <a class="flowmap-card cloud" href="#/supabase-career-muse"
+           data-tooltip="Career Muse Supabase project — Fully separate from the shared one. 27 tables, 22 edge functions. Free tier, auto-pauses after ~7 days idle.">
+          <div class="card-label">Supabase: career-muse</div>
+          <div class="card-sub">separate · 27 tables · 22 Edge Functions</div>
+        </a>
+      </div>
+    </div>
+    <div class="flowmap-arrow">products call external services at runtime</div>
 
-  CC -->|"git push"| PR_GROUP
-  CC -->|"git push"| CB_GROUP
-  CC -->|"tag release"| CS
+    <!-- 5. External APIs -->
+    <div class="flowmap-section">
+      <div class="flowmap-section-title"><span class="lbl-icon">🔌</span>External APIs<span class="lbl-sub">what the products call from the cloud</span></div>
+      <div class="flowmap-row center">
+        <a class="flowmap-card ext" href="#/anthropic"
+           data-tooltip="Anthropic Claude API — The primary LLM brain. Claude Sonnet 4.6 used by T-800, HandyMan, and Career Muse for chat + agent work.">
+          <div class="card-label">Anthropic Claude</div>
+          <div class="card-sub">primary LLM (Sonnet 4.6)</div>
+        </a>
+        <a class="flowmap-card ext" href="#/cerebras"
+           data-tooltip="Cerebras — Fast, cheap inference (qwen-3-235b). T-800 fallback when Claude is rate-limited; content-machine's primary engine for multi-language articles.">
+          <div class="card-label">Cerebras</div>
+          <div class="card-sub">fast/cheap fallback LLM</div>
+        </a>
+        <a class="flowmap-card ext" href="#/google"
+           data-tooltip="Google APIs — Calendar (T-800), Sheets (HandyMan), Gmail (Career Muse). Three separate Google Cloud projects, one per product.">
+          <div class="card-label">Google APIs</div>
+          <div class="card-sub">Calendar · Sheets · Gmail · Tasks</div>
+        </a>
+        <a class="flowmap-card ext" href="#/whatsapp"
+           data-tooltip="WhatsApp Cloud API (Meta) — One business number serves T-800 + HandyMan. Routing by phone via the users_wa table.">
+          <div class="card-label">WhatsApp Cloud (Meta)</div>
+          <div class="card-sub">one number, two products</div>
+        </a>
+        <a class="flowmap-card ext" href="#/google"
+           data-tooltip="Proxycurl — LinkedIn profile enrichment. Used by Career Muse to enrich outreach targets with employer + role data.">
+          <div class="card-label">Proxycurl</div>
+          <div class="card-sub">LinkedIn enrichment</div>
+        </a>
+        <a class="flowmap-card ext" href="#/binance"
+           data-tooltip="Binance — Crypto exchange. Money Machine trading bot would execute orders here. Currently blocked at deposit (Israeli card rejected).">
+          <div class="card-label">Binance</div>
+          <div class="card-sub">crypto exchange (blocked)</div>
+        </a>
+      </div>
+    </div>
+    <div class="flowmap-arrow">serves end users via web + WhatsApp</div>
 
-  subgraph CLOUD [" ☁️ Cloud Hosting (where products actually run) "]
-    direction LR
-    Vercel["Vercel<br/>(web frontends)"]
-    SupaShared["Supabase: shared project<br/>(T-800 + HandyMan)"]
-    SupaCM["Supabase: career-muse project<br/>(separate)"]
-  end
+    <!-- 6. End Users -->
+    <div class="flowmap-section">
+      <div class="flowmap-section-title"><span class="lbl-icon">👥</span>End users<span class="lbl-sub">who actually talks to your products</span></div>
+      <div class="flowmap-row center">
+        <a class="flowmap-card enduser" href="#/vercel"
+           data-tooltip="Browser users — anyone who opens your Vercel-hosted web apps (T-800, Career Muse, HandyMan test console).">
+          <div class="card-label">browser users</div>
+          <div class="card-sub">via Vercel frontends</div>
+        </a>
+        <a class="flowmap-card enduser" href="#/whatsapp"
+           data-tooltip="WhatsApp users — anyone messaging your business number. Routed by phone to T-800 (calendar/scheduling) or HandyMan (handyman ops).">
+          <div class="card-label">WhatsApp users</div>
+          <div class="card-sub">customers + tradesmen via Meta</div>
+        </a>
+      </div>
+    </div>
 
-  PR_GROUP ==>|"auto-deploy on push"| CLOUD
-
-  subgraph EXT [" 🔌 External services the products call "]
-    direction LR
-    AI["Anthropic Claude<br/>(LLM)"]
-    CB["Cerebras<br/>(fallback LLM)"]
-    Goog["Google APIs<br/>Calendar · Sheets · Gmail"]
-    WA["WhatsApp Cloud API<br/>(Meta)"]
-    PRX["Proxycurl<br/>(LinkedIn enrichment)"]
-    BN["Binance<br/>(crypto exchange)"]
-  end
-
-  CLOUD --> EXT
-
-  subgraph USERS [" 👥 End users "]
-    direction LR
-    WebU(["browser users"])
-    WAU(["WhatsApp users"])
-  end
-
-  WebU --> Vercel
-  WAU --> WA
-  WA --> SupaShared
-
-  CS -. "imported at runtime by edge functions" .-> PR_GROUP
-
-  classDef coreCls fill:#1d1730,stroke:#b48cff,color:#e7ecf3
-  classDef sharedCls fill:#2a221a,stroke:#f0b86e,color:#e7ecf3
-  classDef productCls fill:#162038,stroke:#7aa2ff,color:#e7ecf3
-  classDef cloudCls fill:#162a22,stroke:#6cd28a,color:#e7ecf3
-  classDef extCls fill:#251a25,stroke:#c98cff,color:#e7ecf3
-  classDef userCls fill:#251a35,stroke:#e0716b,color:#e7ecf3
-  class BB,CFG coreCls
-  class CS sharedCls
-  class T800,HM,CMOS,MMT productCls
-  class Vercel,SupaShared,SupaCM cloudCls
-  class AI,CB,Goog,WA,BN,PRX extCls
-  class WebU,WAU userCls
-
-  click Basman "#/overview" "You. The product manager + builder. Writes prompts in VS Code; Claude Code does the typing."
-  click CC "#/operation" "Claude Code CLI — the AI agent running in your terminal. Writes code, edits files, runs commands. Uses memory + hooks."
-  click Hooks "#/claude-config" "Local automations in ~/.claude. Auto-loads cross-product principles into prompts, syncs state to GitHub on every session end, detects learnings from transcripts."
-  click BB "#/basman-brain" "basman-brain — Your personal/career knowledge. Two markdown files every Claude session reads at the start of any career conversation."
-  click CFG "#/claude-config" "claude-config — GitHub backup of Claude's operational state (hooks, skills, memory, settings). Auto-synced from ~/.claude. Lets any new machine restore the full setup in one command."
-  click CS "#/calendar-skills" "calendar-skills — Shared TypeScript module for Google Calendar + Hebrew/English time parsing. Used by T-800 + HandyMan via raw URL import. One fix, every product."
-  click T800 "#/t-800" "T-800 — Your personal assistant bot. Calendar, scheduling, WhatsApp-first. React frontend + Supabase Edge Function backend."
-  click HM "#/handyman" "HandyMan — WhatsApp bot for a handyman business. Reads/writes a canonical Google Sheet via Claude + Google Sheets API."
-  click CMOS "#/career-muse-os" "Career Muse OS — Your job-hunting OS. Tracks applications, enriches leads, drafts outreach. Long-term plan: turn it into a fully autonomous career agent."
-  click MMT "#/money-machine" "Money Machine — Crypto trading bot (built, deposit blocked) + multi-language content site generator."
-  click Vercel "#/vercel" "Vercel — Hosts your React frontends. Auto-deploys on every git push (except HandyMan's web/ which needs manual deploy)."
-  click SupaShared "#/supabase-shared" "Shared Supabase project — Postgres database + serverless Edge Functions (small TS backends). 22 tables, 21 edge functions. Powers T-800 + HandyMan from one place. Click to drill into the tables and functions."
-  click SupaCM "#/supabase-career-muse" "Career Muse Supabase project — Fully separate from the shared one. 27 tables, 22 edge functions. Free tier, auto-pauses after ~7 days idle."
-  click AI "#/anthropic" "Anthropic Claude API — The primary LLM. Claude Sonnet 4.6 used by T-800, HandyMan, and Career Muse for chat + agent work."
-  click CB "#/cerebras" "Cerebras — Fast, cheap inference (qwen-3-235b). Used as T-800's fallback when Claude is rate-limited, and as the primary engine for content-machine."
-  click Goog "#/google" "Google APIs — Calendar (T-800), Sheets (HandyMan), Gmail (Career Muse). Three separate Google Cloud projects, one per product."
-  click WA "#/whatsapp" "WhatsApp Cloud API (Meta) — One business number serves T-800 + HandyMan. Routing by phone via the users_wa table."
-  click PRX "#/google" "Proxycurl — LinkedIn profile enrichment. Used by Career Muse to enrich outreach targets."
-  click BN "#/binance" "Binance — Crypto exchange where the Money Machine trading bot would execute orders. Currently blocked at deposit (Israeli card rejected)."
-  click WebU "#/overview" "Browser users — anyone who opens your Vercel-hosted web apps."
-  click WAU "#/whatsapp" "WhatsApp users — anyone messaging your business number. Routed by phone to T-800 or HandyMan."
-    </pre>
   </div>
 
   <div class="grid-two">
@@ -1975,6 +2131,96 @@ flowchart LR
 
 <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
 
+<!-- Universal hover tooltip (works for flowmap + mermaid) -->
+<div class="custom-tooltip" id="custom-tip"></div>
+
+<script>
+  // ---------- Universal hover tooltip ----------
+  const tipEl = document.getElementById('custom-tip');
+  let _tipHideTimer = null;
+  function showTip(text, x, y) {
+    if (!text) return;
+    tipEl.textContent = text;
+    tipEl.classList.add('show');
+    moveTip(x, y);
+  }
+  function moveTip(x, y) {
+    const pad = 14;
+    // Avoid going off the right edge
+    const w = tipEl.offsetWidth || 300;
+    const h = tipEl.offsetHeight || 50;
+    const maxX = window.innerWidth - w - 12;
+    const maxY = window.innerHeight - h - 12;
+    tipEl.style.left = Math.min(x + pad, maxX) + 'px';
+    tipEl.style.top  = Math.min(y + pad, maxY) + 'px';
+  }
+  function hideTip() {
+    tipEl.classList.remove('show');
+  }
+
+  // Hook up flowmap cards (data-tooltip)
+  function attachFlowmapTooltips() {
+    document.querySelectorAll('[data-tooltip]').forEach(el => {
+      if (el.__tipBound) return;
+      el.__tipBound = true;
+      el.addEventListener('mouseenter', (e) => showTip(el.dataset.tooltip, e.clientX, e.clientY));
+      el.addEventListener('mousemove', (e) => moveTip(e.clientX, e.clientY));
+      el.addEventListener('mouseleave', hideTip);
+    });
+  }
+  attachFlowmapTooltips();
+
+  // Parse all <pre.mermaid> for click directives with tooltips BEFORE mermaid mangles them.
+  // Build a map: node-id -> tooltip text. Mermaid renders nodes with id like flowchart-<NodeId>-<n>,
+  // so we'll match on substring.
+  window.__mermaidTooltips = [];
+  document.querySelectorAll('pre.mermaid').forEach((pre, idx) => {
+    const text = pre.textContent;
+    const re = /^\s*click\s+(\w+)\s+"[^"]*"\s+"([^"]+)"/gm;
+    const map = {};
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      map[m[1]] = m[2];
+    }
+    window.__mermaidTooltips.push(map);
+  });
+
+  function attachMermaidTooltips() {
+    document.querySelectorAll('.diagram .mermaid').forEach((mer, idx) => {
+      const map = window.__mermaidTooltips[idx];
+      if (!map) return;
+      const svg = mer.querySelector('svg');
+      if (!svg) return;
+      Object.entries(map).forEach(([nodeId, text]) => {
+        // mermaid 10 ids look like flowchart-NodeId-0 (with hyphens around)
+        const selectors = [
+          `g[id^="flowchart-${nodeId}-"]`,
+          `g[id$="-${nodeId}-0"]`,
+          `g.node[id*="-${nodeId}-"]`,
+          `g.cluster[id*="-${nodeId}-"]`,
+        ];
+        let node = null;
+        for (const sel of selectors) {
+          node = svg.querySelector(sel);
+          if (node) break;
+        }
+        if (!node) return;
+        node.style.cursor = 'pointer';
+        // Remove built-in <title> to prevent native tooltip (any nesting depth)
+        node.querySelectorAll('title').forEach(t => t.remove());
+        if (node.__tipBound) return;
+        node.__tipBound = true;
+        node.addEventListener('mouseenter', (e) => showTip(text, e.clientX, e.clientY));
+        node.addEventListener('mousemove', (e) => moveTip(e.clientX, e.clientY));
+        node.addEventListener('mouseleave', hideTip);
+      });
+    });
+  }
+
+  // expose for the module script to call after mermaid finishes
+  window.__attachMermaidTooltips = attachMermaidTooltips;
+</script>
+
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
 
@@ -2035,6 +2281,9 @@ flowchart LR
     });
   }
   applyPanZoom();
+
+  // Attach custom hover tooltips to mermaid nodes (replaces broken native tooltips)
+  if (window.__attachMermaidTooltips) window.__attachMermaidTooltips();
 
   // Inject pan-zoom hint into every diagram container
   document.querySelectorAll('.diagram').forEach(d => {
