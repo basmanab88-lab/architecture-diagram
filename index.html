@@ -1,0 +1,1295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Basman — Product Factory Architecture</title>
+<style>
+  :root {
+    --bg: #0b0d12;
+    --bg-elev: #131722;
+    --bg-elev-2: #1a2030;
+    --border: #232a3d;
+    --border-strong: #364162;
+    --text: #e7ecf3;
+    --text-dim: #8a93a8;
+    --text-faint: #5d667c;
+    --accent: #7aa2ff;
+    --accent-soft: rgba(122,162,255,0.12);
+    --good: #6cd28a;
+    --warn: #f0b86e;
+    --bad: #e0716b;
+    --core: #b48cff;
+    --product: #7aa2ff;
+    --tool: #6cd28a;
+    --shared: #f0b86e;
+    --radius: 10px;
+    --shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 24px rgba(0,0,0,0.25);
+    font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, Inter, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); }
+  body { min-height: 100vh; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .app {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ---------- Sidebar ---------- */
+  aside.nav {
+    background: #0a0c10;
+    border-right: 1px solid var(--border);
+    padding: 22px 14px;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  }
+  .brand { padding: 0 8px 16px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+  .brand h1 { margin: 0 0 4px; font-size: 16px; font-weight: 650; letter-spacing: -0.005em; }
+  .brand .who { color: var(--text-faint); font-size: 11px; }
+  .nav-section { color: var(--text-faint); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; padding: 14px 8px 6px; }
+  .nav-link {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px; border-radius: 8px;
+    color: var(--text-dim); font-size: 13px;
+    cursor: pointer; text-decoration: none;
+    border: 1px solid transparent;
+  }
+  .nav-link:hover { background: rgba(255,255,255,0.03); color: var(--text); text-decoration: none; }
+  .nav-link.active {
+    background: var(--accent-soft); color: var(--accent);
+    border-color: rgba(122,162,255,0.25);
+  }
+  .nav-link .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .nav-link.core .dot { background: var(--core); }
+  .nav-link.shared .dot { background: var(--shared); }
+  .nav-link.product .dot { background: var(--product); }
+  .nav-link.tool .dot { background: var(--tool); }
+  .nav-link.meta .dot { background: var(--text-dim); }
+
+  /* ---------- Main ---------- */
+  main.content {
+    padding: 36px 40px 80px;
+    max-width: 1280px;
+  }
+
+  .page-head { margin-bottom: 24px; }
+  .page-head .crumbs { font-size: 11px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.08em; }
+  .page-head h2 { margin: 6px 0 6px; font-size: 26px; font-weight: 650; letter-spacing: -0.01em; }
+  .page-head .lede { color: var(--text-dim); font-size: 15px; max-width: 780px; }
+
+  .meta-strip {
+    display: flex; gap: 18px; flex-wrap: wrap;
+    margin: 14px 0 6px; font-size: 12px;
+  }
+  .meta-strip .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 999px;
+    border: 1px solid var(--border); color: var(--text-dim);
+  }
+  .meta-strip .pill a { color: var(--text); }
+  .meta-strip .pill.good { color: var(--good); border-color: rgba(108,210,138,0.4); }
+  .meta-strip .pill.warn { color: var(--warn); border-color: rgba(240,184,110,0.4); }
+  .meta-strip .pill.bad { color: var(--bad); border-color: rgba(224,113,107,0.4); }
+
+  /* ---------- Diagram container ---------- */
+  .diagram {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 20px 0;
+    overflow-x: auto;
+  }
+  .diagram .mermaid {
+    /* mermaid sets its own styles, we just constrain */
+    text-align: center;
+  }
+  .diagram .mermaid svg { max-width: 100%; height: auto; }
+  .diagram-loading { color: var(--text-faint); font-size: 13px; text-align: center; padding: 40px; }
+
+  /* ---------- Cards ---------- */
+  .grid-two {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px;
+    margin: 18px 0;
+  }
+  .info-card {
+    background: var(--bg-elev); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .info-card h4 { margin: 0 0 6px; font-size: 13px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.06em; }
+  .info-card p { margin: 0; font-size: 14px; color: var(--text); }
+  .info-card ul { margin: 4px 0 0; padding-left: 18px; font-size: 13px; color: var(--text-dim); }
+  .info-card ul li { margin-bottom: 3px; }
+
+  /* ---------- File links ---------- */
+  .files {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin: 18px 0;
+  }
+  .files h3 { margin: 0 0 10px; font-size: 12px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.08em; }
+  .files-list { display: flex; flex-direction: column; gap: 4px; }
+  .file-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 7px 10px; border-radius: 6px;
+    background: rgba(255,255,255,0.02); border: 1px solid transparent;
+    transition: background .12s, border-color .12s;
+    color: var(--text);
+  }
+  .file-row:hover { background: var(--accent-soft); border-color: var(--border); text-decoration: none; }
+  .file-row .name { font-family: ui-monospace, "Consolas", "SF Mono", monospace; font-size: 12.5px; }
+  .file-row .desc { color: var(--text-faint); font-size: 12px; }
+  .file-row .open { color: var(--text-dim); font-size: 11px; flex-shrink: 0; }
+  .file-row.no-link { cursor: default; opacity: 0.65; }
+  .file-row.no-link:hover { background: rgba(255,255,255,0.02); }
+
+  /* ---------- Stack chips ---------- */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .chip {
+    font-size: 11px; padding: 3px 9px; border-radius: 999px;
+    background: rgba(255,255,255,0.04); color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+
+  /* ---------- Search ---------- */
+  .search-wrap {
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg-elev); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px;
+  }
+  .search-wrap input {
+    flex: 1; background: transparent; border: 0; outline: none;
+    color: var(--text); font-size: 13px;
+  }
+  .search-wrap input::placeholder { color: var(--text-faint); }
+  .search-results {
+    background: var(--bg-elev); border: 1px solid var(--border);
+    border-radius: 8px; max-height: 240px; overflow-y: auto;
+    display: none; margin-bottom: 14px;
+  }
+  .search-results.open { display: block; }
+  .search-row { padding: 8px 12px; cursor: pointer; font-size: 13px; border-bottom: 1px solid var(--border); }
+  .search-row:hover { background: var(--accent-soft); }
+  .search-row:last-child { border-bottom: 0; }
+  .search-row .ctx { color: var(--text-faint); font-size: 11px; }
+
+  /* ---------- Page routing ---------- */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ---------- Footer ---------- */
+  footer {
+    margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border);
+    color: var(--text-faint); font-size: 12px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    aside.nav { position: relative; height: auto; }
+    main.content { padding: 24px 18px 48px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<aside class="nav">
+  <div class="brand">
+    <h1>Product Factory</h1>
+    <div class="who">Basman · interactive architecture</div>
+  </div>
+
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="search" placeholder="Search…" autocomplete="off" />
+  </div>
+  <div class="search-results" id="search-results"></div>
+
+  <div class="nav-section">Map</div>
+  <a class="nav-link meta" data-route="overview"><span class="dot"></span>Overview</a>
+  <a class="nav-link meta" data-route="operation"><span class="dot"></span>The Operation</a>
+
+  <div class="nav-section">Core / Brain</div>
+  <a class="nav-link core" data-route="basman-brain"><span class="dot"></span>basman-brain</a>
+  <a class="nav-link core" data-route="claude-config"><span class="dot"></span>claude-config</a>
+
+  <div class="nav-section">Shared modules</div>
+  <a class="nav-link shared" data-route="calendar-skills"><span class="dot"></span>calendar-skills</a>
+
+  <div class="nav-section">Products</div>
+  <a class="nav-link product" data-route="t-800"><span class="dot"></span>T-800</a>
+  <a class="nav-link product" data-route="handyman"><span class="dot"></span>HandyMan</a>
+  <a class="nav-link product" data-route="career-muse-os"><span class="dot"></span>Career Muse OS</a>
+  <a class="nav-link product" data-route="money-machine"><span class="dot"></span>Money Machine</a>
+
+  <div class="nav-section">Tools</div>
+  <a class="nav-link tool" data-route="tools"><span class="dot"></span>Remotion + yt-helper</a>
+</aside>
+
+<main class="content">
+
+<!-- ============================================================ -->
+<!-- OVERVIEW -->
+<!-- ============================================================ -->
+<section class="page" data-page="overview">
+  <div class="page-head">
+    <div class="crumbs">Map</div>
+    <h2>Overview — Every system, one diagram</h2>
+    <p class="lede">Bird's-eye view of Basman's product factory. The boxes are systems; the arrows are how data and code flow between them. Click any box to jump to its GitHub repo.</p>
+  </div>
+
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart TB
+  Basman([👤 Basman])
+
+  subgraph WS [" 💻 Workstation — C:\Users\User "]
+    direction LR
+    CC["Claude Code CLI"]
+    Hooks["~/.claude hooks<br/>inject-principles<br/>sync-config<br/>detect-learnings"]
+    CC --- Hooks
+  end
+
+  Basman --> CC
+
+  subgraph GH [" 🐙 GitHub — basmanab88-lab "]
+    direction LR
+    subgraph CORE [Core / Brain]
+      BB["basman-brain"]
+      CFG["claude-config"]
+    end
+    subgraph SHARED [Shared module]
+      CS["calendar-skills"]
+    end
+    subgraph PRODUCTS [Product repos]
+      T800["t-800"]
+      HM["handyman"]
+      CMOS["career-muse-os"]
+      MMT["money-machine"]
+    end
+  end
+
+  CC -->|"writes code · git push"| GH
+  CC -->|"Stop hook · auto-sync"| CFG
+
+  subgraph CLOUD [" ☁️ Cloud Hosting "]
+    direction LR
+    Vercel["Vercel<br/>frontend hosts"]
+    SupaShared["Supabase<br/>(shared T-800 + HandyMan)"]
+    SupaCM["Supabase<br/>(Career Muse — separate)"]
+  end
+
+  T800 -->|deploy| Vercel
+  HM -->|deploy| Vercel
+  CMOS -->|deploy| Vercel
+  T800 -->|edge fns| SupaShared
+  HM -->|edge fns| SupaShared
+  CMOS -->|edge fns| SupaCM
+
+  CS -. "raw URL import" .-> T800
+  CS -. "raw URL import" .-> HM
+
+  subgraph EXT [" 🔌 External APIs "]
+    direction LR
+    AI["Anthropic Claude"]
+    CB["Cerebras"]
+    Goog["Google APIs<br/>Calendar · Sheets · Gmail"]
+    WA["WhatsApp Cloud API"]
+    BN["Binance"]
+    PRX["Proxycurl"]
+  end
+
+  SupaShared --> AI
+  SupaShared --> Goog
+  SupaShared --> WA
+  SupaCM --> AI
+  SupaCM --> PRX
+  MMT --> BN
+  MMT --> CB
+
+  subgraph USERS [" 👥 End Users "]
+    direction LR
+    WebU(["Web users"])
+    WAU(["WhatsApp users"])
+  end
+
+  WebU --> Vercel
+  WAU --> WA
+
+  classDef coreCls fill:#1d1730,stroke:#b48cff,color:#e7ecf3
+  classDef sharedCls fill:#2a221a,stroke:#f0b86e,color:#e7ecf3
+  classDef productCls fill:#162038,stroke:#7aa2ff,color:#e7ecf3
+  classDef cloudCls fill:#162a22,stroke:#6cd28a,color:#e7ecf3
+  classDef extCls fill:#251a25,stroke:#c98cff,color:#e7ecf3
+  class BB,CFG coreCls
+  class CS sharedCls
+  class T800,HM,CMOS,MMT productCls
+  class Vercel,SupaShared,SupaCM cloudCls
+  class AI,CB,Goog,WA,BN,PRX extCls
+
+  click BB "https://github.com/basmanab88-lab/basman-brain" _blank
+  click CFG "https://github.com/basmanab88-lab/claude-config" _blank
+  click CS "https://github.com/basmanab88-lab/calendar-skills" _blank
+  click T800 "https://github.com/basmanab88-lab/t-800" _blank
+  click HM "https://github.com/basmanab88-lab/handyman" _blank
+  click CMOS "https://github.com/basmanab88-lab/career-muse-os" _blank
+  click MMT "https://github.com/basmanab88-lab/money-machine" _blank
+    </pre>
+  </div>
+
+  <div class="grid-two">
+    <div class="info-card">
+      <h4>How to read</h4>
+      <p>Solid arrows = data/code flow. Dashed arrows = library import at runtime (calendar-skills is fetched as raw URLs from Edge Functions, not bundled).</p>
+    </div>
+    <div class="info-card">
+      <h4>Sharing pattern</h4>
+      <p>T-800 and HandyMan share one Supabase project and one WhatsApp number — routing by phone via the <code>users_wa</code> table. Career Muse is fully decoupled.</p>
+    </div>
+    <div class="info-card">
+      <h4>Hand-off boundary</h4>
+      <p>Once code lands on GitHub, deploys are automatic to Vercel + Supabase — except HandyMan's web console, which needs a manual <code>vercel --prod</code>.</p>
+    </div>
+    <div class="info-card">
+      <h4>Where Basman lives</h4>
+      <p>Almost all editing happens in VS Code with Claude Code CLI. The CLI auto-syncs <code>~/.claude</code> to the <code>claude-config</code> repo on every session end.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- OPERATION -->
+<!-- ============================================================ -->
+<section class="page" data-page="operation">
+  <div class="page-head">
+    <div class="crumbs">Map · Meta-view</div>
+    <h2>The Operation — Dev to Deploy to User</h2>
+    <p class="lede">The whole loop. Basman types in VS Code. Claude Code writes code, pushes to GitHub. GitHub auto-deploys to Vercel + Supabase. End users hit those services from a browser or a WhatsApp message. This page is the answer to "how does anything I build actually reach a user?".</p>
+  </div>
+
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+  subgraph DEV [" 1. DEV — on Basman's machine "]
+    direction TB
+    B(["👤 Basman"])
+    VS["VS Code editor"]
+    CCC["Claude Code CLI"]
+    Mem["~/.claude/projects/*/<br/>memory/"]
+    PR["PRINCIPLES.md<br/>(cross-product rules)"]
+    Hooks["UserPromptSubmit hook<br/>injects principles +<br/>career context"]
+    StopH["Stop hook<br/>auto-sync ~/.claude"]
+    B --> VS
+    B -->|prompts| CCC
+    CCC <--> Mem
+    CCC -.reads.- PR
+    Hooks -.injects.-> CCC
+    CCC --> StopH
+  end
+
+  subgraph GIT [" 2. GITHUB — source of truth "]
+    direction TB
+    Cfg["claude-config<br/>(hooks + memory backup)"]
+    Brain["basman-brain<br/>(career knowledge)"]
+    Cal["calendar-skills<br/>(shared module)"]
+    Prods["product repos:<br/>t-800 · handyman ·<br/>career-muse-os ·<br/>money-machine"]
+  end
+
+  StopH -->|"every session end"| Cfg
+  CCC -->|"git push"| Brain
+  CCC -->|"git push"| Prods
+  CCC -->|"tag release"| Cal
+
+  subgraph DEPLOY [" 3. AUTO-DEPLOY "]
+    direction TB
+    Vcl["Vercel<br/>builds frontends"]
+    SBE["Supabase<br/>deploys edge fns + migrations"]
+    AutoPR["Auto-PR bot<br/>(calendar-skills releases)"]
+  end
+
+  Prods -->|"webhook"| Vcl
+  Prods -->|"webhook"| SBE
+  Cal -->|"new release"| AutoPR
+  AutoPR -->|"opens PR in consumers"| Prods
+
+  subgraph RUN [" 4. RUNTIME — users hit production "]
+    direction TB
+    EU(["👤 End user"])
+    Web{{"web browser"}}
+    WAP{{"WhatsApp"}}
+    Run_V["Vercel-served app<br/>(React frontend)"]
+    Run_SB["Supabase Edge Fn<br/>(business logic)"]
+    Run_AI["Claude API<br/>Cerebras"]
+    Run_Ext["Google APIs<br/>WA Cloud Webhook<br/>Binance"]
+    EU --> Web --> Run_V
+    EU --> WAP --> Run_Ext
+    Run_V -->|HTTPS| Run_SB
+    Run_Ext -->|webhook| Run_SB
+    Run_SB --> Run_AI
+    Run_SB --> Run_Ext
+    Run_SB -->|response| EU
+  end
+
+  Vcl ==>|"live"| Run_V
+  SBE ==>|"live"| Run_SB
+
+  classDef devCls fill:#1d1730,stroke:#b48cff,color:#e7ecf3
+  classDef gitCls fill:#162038,stroke:#7aa2ff,color:#e7ecf3
+  classDef depCls fill:#162a22,stroke:#6cd28a,color:#e7ecf3
+  classDef runCls fill:#2a221a,stroke:#f0b86e,color:#e7ecf3
+  class B,VS,CCC,Mem,PR,Hooks,StopH devCls
+  class Cfg,Brain,Cal,Prods gitCls
+  class Vcl,SBE,AutoPR depCls
+  class EU,Web,WAP,Run_V,Run_SB,Run_AI,Run_Ext runCls
+
+  click Cfg "https://github.com/basmanab88-lab/claude-config" _blank
+  click Brain "https://github.com/basmanab88-lab/basman-brain" _blank
+  click Cal "https://github.com/basmanab88-lab/calendar-skills" _blank
+  click StopH "https://github.com/basmanab88-lab/claude-config/blob/main/hooks/sync-claude-config.js" _blank
+  click Hooks "https://github.com/basmanab88-lab/claude-config/blob/main/hooks/inject-principles.js" _blank
+  click PR "https://github.com/basmanab88-lab/claude-config/blob/main/PRINCIPLES.md" _blank
+    </pre>
+  </div>
+
+  <div class="grid-two">
+    <div class="info-card">
+      <h4>1. Dev loop</h4>
+      <p>Basman opens VS Code. Claude Code reads relevant memory, applies the PRINCIPLES.md rules (auto-injected by a UserPromptSubmit hook based on keywords). Code is written; the Stop hook syncs ~/.claude to GitHub after every session.</p>
+    </div>
+    <div class="info-card">
+      <h4>2. Source of truth</h4>
+      <p>All operational knowledge is on GitHub. New machine? Clone <code>claude-config</code> and run <code>setup-new-machine.sh</code> — full state restored. No machine is irreplaceable.</p>
+    </div>
+    <div class="info-card">
+      <h4>3. Auto-deploy</h4>
+      <p>Vercel + Supabase deploy on every push. calendar-skills has a release pipeline that opens auto-PRs in consumer repos, which auto-deploy on merge. Zero-touch end-to-end.</p>
+    </div>
+    <div class="info-card">
+      <h4>4. Runtime</h4>
+      <p>Users arrive through one of two doors: a browser (Vercel-hosted frontend) or a WhatsApp message (Cloud API webhook). Both land in a Supabase Edge Function, which orchestrates Claude + Google APIs + responses back.</p>
+    </div>
+  </div>
+
+  <div class="files">
+    <h3>Key files behind the operation</h3>
+    <div class="files-list">
+      <a class="file-row" href="https://github.com/basmanab88-lab/claude-config/blob/main/PRINCIPLES.md" target="_blank" rel="noopener">
+        <div><div class="name">PRINCIPLES.md</div><div class="desc">Cross-product engineering rules, auto-injected when keywords match</div></div>
+        <span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/claude-config/blob/main/hooks/sync-claude-config.js" target="_blank" rel="noopener">
+        <div><div class="name">hooks/sync-claude-config.js</div><div class="desc">Stop hook — auto-syncs ~/.claude to GitHub on every session end</div></div>
+        <span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/claude-config/blob/main/hooks/inject-principles.js" target="_blank" rel="noopener">
+        <div><div class="name">hooks/inject-principles.js</div><div class="desc">UserPromptSubmit hook — auto-loads PRINCIPLES.md when prompt mentions agent/bot/handler</div></div>
+        <span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/claude-config/blob/main/setup-new-machine.sh" target="_blank" rel="noopener">
+        <div><div class="name">setup-new-machine.sh</div><div class="desc">One-shot bootstrap for a fresh laptop</div></div>
+        <span class="open">open ↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- basman-brain -->
+<!-- ============================================================ -->
+<section class="page" data-page="basman-brain">
+  <div class="page-head">
+    <div class="crumbs">Core / Brain</div>
+    <h2>basman-brain</h2>
+    <p class="lede">Basman's personal career knowledge. Two markdown files that every Claude session reads at the start of any career conversation. Closes the loop so sessions don't lose context between days.</p>
+    <div class="meta-strip">
+      <span class="pill good">● active</span>
+      <span class="pill"><a href="https://github.com/basmanab88-lab/basman-brain" target="_blank" rel="noopener">repo ↗</a></span>
+      <span class="pill"><code>C:\Users\User\basman-brain</code></span>
+    </div>
+    <div class="chips">
+      <span class="chip">Markdown</span><span class="chip">Memory</span><span class="chip">Git</span>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart TD
+  S1(["Claude session<br/>Monday"])
+  S2(["Claude session<br/>Thursday"])
+  S3(["Cowork session<br/>(cloud)"])
+
+  Hook["UserPromptSubmit hook<br/>auto-loads context"]
+
+  Ctx["memory/context.md<br/>slow-changing facts:<br/>profile · projects · preferences"]
+  Career["memory/career_state.md<br/>active mindset · open questions"]
+
+  S1 -->|prompt| Hook
+  S2 -->|prompt| Hook
+  S3 -->|prompt| Hook
+  Hook --> Ctx
+  Hook --> Career
+
+  S1 -. updates when learning new fact .-> Ctx
+  S2 -. updates when career topic .-> Career
+
+  Push["git push<br/>(manual)"]
+  Ctx --> Push
+  Career --> Push
+
+  classDef sess fill:#162038,stroke:#7aa2ff,color:#e7ecf3
+  classDef mem fill:#1d1730,stroke:#b48cff,color:#e7ecf3
+  class S1,S2,S3 sess
+  class Ctx,Career mem
+
+  click Ctx "https://github.com/basmanab88-lab/basman-brain/blob/main/memory/context.md" _blank
+  click Career "https://github.com/basmanab88-lab/basman-brain/blob/main/memory/career_state.md" _blank
+  click Hook "https://github.com/basmanab88-lab/claude-config/tree/main/hooks" _blank
+    </pre>
+  </div>
+
+  <div class="files">
+    <h3>Source files</h3>
+    <div class="files-list">
+      <a class="file-row" href="https://github.com/basmanab88-lab/basman-brain/blob/main/memory/context.md" target="_blank" rel="noopener">
+        <div><div class="name">memory/context.md</div><div class="desc">Slow-changing facts about Basman — read at start of every career session</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/basman-brain/blob/main/memory/career_state.md" target="_blank" rel="noopener">
+        <div><div class="name">memory/career_state.md</div><div class="desc">Active career mindset, decisions in progress, open questions</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/basman-brain" target="_blank" rel="noopener">
+        <div><div class="name">repo root</div><div class="desc">Full repo</div></div><span class="open">open ↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- claude-config -->
+<!-- ============================================================ -->
+<section class="page" data-page="claude-config">
+  <div class="page-head">
+    <div class="crumbs">Core / Brain</div>
+    <h2>claude-config</h2>
+    <p class="lede">Claude's operational backbone — every hook, skill, principle, and memory file that defines how Claude Code behaves for Basman. Auto-synced from <code>~/.claude</code> on every session end, so no machine is irreplaceable.</p>
+    <div class="meta-strip">
+      <span class="pill good">● active</span>
+      <span class="pill"><a href="https://github.com/basmanab88-lab/claude-config" target="_blank" rel="noopener">repo ↗</a></span>
+      <span class="pill"><code>C:\Users\User\claude-config</code></span>
+    </div>
+    <div class="chips">
+      <span class="chip">JS hooks</span><span class="chip">Bash hooks</span><span class="chip">Skills</span><span class="chip">Markdown memory</span>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+  subgraph Local [" 💻 Local: ~/.claude "]
+    direction TB
+    Settings["settings.json"]
+    HooksDir["hooks/"]
+    SkillsDir["skills/"]
+    MemDir["projects/&lt;host&gt;/memory/"]
+    PR["PRINCIPLES.md"]
+    LQ["LEARNINGS_QUEUE.md"]
+    Routing["ROUTING.md"]
+  end
+
+  StopHook["Stop hook<br/>sync-claude-config.js"]
+  Local --> StopHook
+
+  Repo["🐙 claude-config repo<br/>(GitHub backup)"]
+  StopHook -->|"git pull --rebase &amp; push<br/>every session end"| Repo
+
+  NewMachine{{"New machine?"}}
+  Setup["setup-new-machine.sh"]
+  Repo -->|"git clone"| NewMachine --> Setup --> Local
+
+  InjectH["inject-principles.js<br/>(UserPromptSubmit)"]
+  DetectH["detect-learnings.js<br/>(Stop)"]
+  HooksDir --> InjectH
+  HooksDir --> DetectH
+  InjectH -.->|"loads into context<br/>when keywords match"| Claude["Active Claude session"]
+  DetectH -.->|"appends candidates"| LQ
+
+  classDef hook fill:#2a221a,stroke:#f0b86e,color:#e7ecf3
+  classDef repo fill:#162038,stroke:#7aa2ff,color:#e7ecf3
+  class StopHook,InjectH,DetectH hook
+  class Repo repo
+
+  click PR "https://github.com/basmanab88-lab/claude-config/blob/main/PRINCIPLES.md" _blank
+  click LQ "https://github.com/basmanab88-lab/claude-config/blob/main/LEARNINGS_QUEUE.md" _blank
+  click Routing "https://github.com/basmanab88-lab/claude-config/blob/main/ROUTING.md" _blank
+  click HooksDir "https://github.com/basmanab88-lab/claude-config/tree/main/hooks" _blank
+  click SkillsDir "https://github.com/basmanab88-lab/claude-config/tree/main/skills" _blank
+  click Setup "https://github.com/basmanab88-lab/claude-config/blob/main/setup-new-machine.sh" _blank
+  click StopHook "https://github.com/basmanab88-lab/claude-config/blob/main/hooks/sync-claude-config.js" _blank
+  click InjectH "https://github.com/basmanab88-lab/claude-config/blob/main/hooks/inject-principles.js" _blank
+  click DetectH "https://github.com/basmanab88-lab/claude-config/blob/main/hooks/detect-learnings.js" _blank
+    </pre>
+  </div>
+
+  <div class="files">
+    <h3>Key files</h3>
+    <div class="files-list">
+      <a class="file-row" href="https://github.com/basmanab88-lab/claude-config/blob/main/PRINCIPLES.md" target="_blank" rel="noopener">
+        <div><div class="name">PRINCIPLES.md</div><div class="desc">Cross-product engineering principles, learned from real bugs</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/claude-config/blob/main/LEARNINGS_QUEUE.md" target="_blank" rel="noopener">
+        <div><div class="name">LEARNINGS_QUEUE.md</div><div class="desc">Auto-collected learning candidates from session transcripts</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/claude-config/blob/main/ROUTING.md" target="_blank" rel="noopener">
+        <div><div class="name">ROUTING.md</div><div class="desc">Intent → repo routing rules</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/claude-config/tree/main/hooks" target="_blank" rel="noopener">
+        <div><div class="name">hooks/</div><div class="desc">All Claude Code hooks — sync, inject, detect</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/claude-config/tree/main/skills" target="_blank" rel="noopener">
+        <div><div class="name">skills/</div><div class="desc">Custom agent skills</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/claude-config/blob/main/setup-new-machine.sh" target="_blank" rel="noopener">
+        <div><div class="name">setup-new-machine.sh</div><div class="desc">One-shot bootstrap on a fresh machine</div></div><span class="open">open ↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- calendar-skills -->
+<!-- ============================================================ -->
+<section class="page" data-page="calendar-skills">
+  <div class="page-head">
+    <div class="crumbs">Shared module</div>
+    <h2>calendar-skills</h2>
+    <p class="lede">Single source of truth for Google Calendar operations and Hebrew/English time parsing. Public repo (needed for raw URL fetch from Deno Edge Functions). When a calendar bug surfaces in T-800 or HandyMan, it gets fixed <em>here</em>, not in the consumer.</p>
+    <div class="meta-strip">
+      <span class="pill good">● v1.0.1 · released 2026-04-30</span>
+      <span class="pill"><a href="https://github.com/basmanab88-lab/calendar-skills" target="_blank" rel="noopener">repo ↗</a></span>
+      <span class="pill"><code>C:\Users\User\calendar-skills</code></span>
+    </div>
+    <div class="chips">
+      <span class="chip">TypeScript</span><span class="chip">Deno</span><span class="chip">Hebrew NLP</span><span class="chip">PUBLIC repo</span>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart TD
+  Dev["git tag v1.x.x"]
+  Release["GitHub Release<br/>workflow"]
+  Public(("Public raw URL surface"))
+
+  Dev --> Release --> Public
+
+  AutoPR["Auto-PR bot"]
+  Release -->|"new release"| AutoPR
+
+  T800Repo["t-800 repo<br/>(consumer)"]
+  HMRepo["handyman repo<br/>(consumer)"]
+  AutoPR -->|"opens PR"| T800Repo
+  AutoPR -->|"opens PR"| HMRepo
+
+  T800Edge["T-800 Supabase Edge<br/>imports skills at runtime"]
+  HMEdge["HandyMan Supabase Edge"]
+  T800Repo -->|"merge → auto-deploy"| T800Edge
+  HMRepo -->|"merge → auto-deploy"| HMEdge
+
+  Public -. "raw URL fetch" .-> T800Edge
+  Public -. "raw URL fetch" .-> HMEdge
+
+  classDef pub fill:#2a221a,stroke:#f0b86e,color:#e7ecf3
+  classDef cons fill:#162038,stroke:#7aa2ff,color:#e7ecf3
+  class Public,Release pub
+  class T800Edge,HMEdge,T800Repo,HMRepo cons
+
+  click Public "https://github.com/basmanab88-lab/calendar-skills" _blank
+  click T800Edge "https://github.com/basmanab88-lab/t-800/tree/main/supabase/functions" _blank
+  click HMEdge "https://github.com/basmanab88-lab/handyman/tree/main/supabase/functions" _blank
+  click Release "https://github.com/basmanab88-lab/calendar-skills/releases" _blank
+    </pre>
+  </div>
+
+  <div class="grid-two">
+    <div class="info-card">
+      <h4>Why public</h4>
+      <p>Supabase Edge Functions run on Deno. Deno imports modules via URL. Private repo URLs need auth headers; a public repo's <code>raw.githubusercontent.com</code> URL is fetchable with no setup. So the repo is public — no secrets allowed in here, ever.</p>
+    </div>
+    <div class="info-card">
+      <h4>Why a separate repo</h4>
+      <p>So a calendar bug discovered in T-800 doesn't get patched in T-800. It gets patched in calendar-skills, released, and auto-rolls to every consumer. One fix, every product.</p>
+    </div>
+  </div>
+
+  <div class="files">
+    <h3>Key paths</h3>
+    <div class="files-list">
+      <a class="file-row" href="https://github.com/basmanab88-lab/calendar-skills/blob/main/README.md" target="_blank" rel="noopener">
+        <div><div class="name">README.md</div><div class="desc">How to consume from an Edge Function</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/calendar-skills/tree/main/src" target="_blank" rel="noopener">
+        <div><div class="name">src/</div><div class="desc">Parsing, formatting, Google Calendar client</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/calendar-skills/tree/main/.github/workflows" target="_blank" rel="noopener">
+        <div><div class="name">.github/workflows</div><div class="desc">Release pipeline that opens auto-PRs in consumers</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/calendar-skills/releases" target="_blank" rel="noopener">
+        <div><div class="name">releases</div><div class="desc">Tagged versions — latest v1.0.1</div></div><span class="open">open ↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- T-800 -->
+<!-- ============================================================ -->
+<section class="page" data-page="t-800">
+  <div class="page-head">
+    <div class="crumbs">Product</div>
+    <h2>T-800 — Personal assistant bot</h2>
+    <p class="lede">Calendar + scheduling assistant. Two entry points: web UI for testing, and WhatsApp for the real flow. Both land in the same Supabase Edge Function that drives Claude and Google Calendar.</p>
+    <div class="meta-strip">
+      <span class="pill good">● active · production</span>
+      <span class="pill"><a href="https://github.com/basmanab88-lab/t-800" target="_blank" rel="noopener">repo ↗</a></span>
+      <span class="pill"><a href="https://t-800-beryl.vercel.app" target="_blank" rel="noopener">live ↗</a></span>
+      <span class="pill"><code>C:\Users\User\t-800</code></span>
+    </div>
+    <div class="chips">
+      <span class="chip">React</span><span class="chip">Vite</span><span class="chip">TypeScript</span><span class="chip">Supabase Edge</span><span class="chip">Claude Sonnet 4.6</span><span class="chip">Google Calendar API</span>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+  WebUser(["Web user"])
+  WAUser(["WhatsApp user"])
+
+  WAWebhook["WhatsApp Cloud<br/>webhook"]
+
+  subgraph Repo [" 📦 Repo: t-800 "]
+    direction TB
+    FE["React + Vite<br/>src/"]
+    Chat["Edge fn: chat<br/>supabase/functions/chat"]
+    Mig["DB migrations<br/>supabase/migrations"]
+    DB[("Supabase DB<br/>(shared with HandyMan)")]
+    FE -->|HTTPS| Chat
+    Chat <--> DB
+    Mig -.applies.-> DB
+  end
+
+  Claude["Anthropic Claude<br/>Sonnet 4.6"]
+  GCal["Google Calendar API"]
+  CalLib(("calendar-skills<br/>raw URL fetch"))
+
+  WebUser -->|browser| FE
+  WAUser --> WAWebhook --> Chat
+  Chat --> Claude
+  Chat --> GCal
+  Chat -. imports at runtime .- CalLib
+  Chat -->|reply| WAWebhook --> WAUser
+  FE -->|reply| WebUser
+
+  classDef repoCls fill:#162038,stroke:#7aa2ff,color:#e7ecf3
+  classDef extCls fill:#251a25,stroke:#c98cff,color:#e7ecf3
+  class FE,Chat,DB,Mig repoCls
+  class Claude,GCal,WAWebhook,CalLib extCls
+
+  click FE "https://github.com/basmanab88-lab/t-800/tree/main/src" _blank
+  click Chat "https://github.com/basmanab88-lab/t-800/tree/main/supabase/functions/chat" _blank
+  click Mig "https://github.com/basmanab88-lab/t-800/tree/main/supabase/migrations" _blank
+  click CalLib "https://github.com/basmanab88-lab/calendar-skills" _blank
+    </pre>
+  </div>
+
+  <div class="grid-two">
+    <div class="info-card">
+      <h4>AI provider history</h4>
+      <p>Switched from Cerebras to Anthropic Claude on 2026-04-05. Claude won on quality; Cerebras kept as fallback only.</p>
+    </div>
+    <div class="info-card">
+      <h4>Why share Supabase with HandyMan</h4>
+      <p>Same user base segment (Basman's WhatsApp number). The <code>users_wa</code> table routes inbound messages to T-800 or HandyMan logic by phone number — no point splitting the DB.</p>
+    </div>
+  </div>
+
+  <div class="files">
+    <h3>Source paths</h3>
+    <div class="files-list">
+      <a class="file-row" href="https://github.com/basmanab88-lab/t-800/tree/main/src" target="_blank" rel="noopener">
+        <div><div class="name">src/</div><div class="desc">React + Vite + TS frontend</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/t-800/tree/main/supabase/functions/chat" target="_blank" rel="noopener">
+        <div><div class="name">supabase/functions/chat</div><div class="desc">Main LLM chat handler — drives Claude + Google Calendar</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/t-800/tree/main/supabase/functions" target="_blank" rel="noopener">
+        <div><div class="name">supabase/functions/</div><div class="desc">All Edge Functions</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/t-800/tree/main/supabase/migrations" target="_blank" rel="noopener">
+        <div><div class="name">supabase/migrations</div><div class="desc">DB schema (shared with HandyMan)</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/t-800/blob/main/package.json" target="_blank" rel="noopener">
+        <div><div class="name">package.json</div><div class="desc">Dependencies + scripts</div></div><span class="open">open ↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- HandyMan -->
+<!-- ============================================================ -->
+<section class="page" data-page="handyman">
+  <div class="page-head">
+    <div class="crumbs">Product</div>
+    <h2>HandyMan — Handyman business automation</h2>
+    <p class="lede">WhatsApp-first bot for a handyman business. Tradesmen and their customers message in; the bot reads/writes the canonical Google Sheet (Eilon's). Web test console is a separate Vercel app — manual deploy required.</p>
+    <div class="meta-strip">
+      <span class="pill good">● active</span>
+      <span class="pill"><a href="https://github.com/basmanab88-lab/handyman" target="_blank" rel="noopener">repo ↗</a></span>
+      <span class="pill"><a href="https://t-800-beryl.vercel.app/handyman-test" target="_blank" rel="noopener">test console ↗</a></span>
+      <span class="pill warn">⚠ web has no auto-deploy</span>
+      <span class="pill"><code>C:\Users\User\handyman</code></span>
+    </div>
+    <div class="chips">
+      <span class="chip">Supabase Edge</span><span class="chip">Claude Sonnet 4.6</span><span class="chip">Google Sheets API</span><span class="chip">WhatsApp Cloud</span>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+  Trades(["Tradesman"])
+  Cust(["Customer"])
+  Owner(["Basman / Eylon"])
+
+  WA["WhatsApp Cloud"]
+
+  subgraph Repo [" 📦 Repo: handyman "]
+    direction TB
+    Web["web/<br/>test console<br/>(manual deploy)"]
+    Router["supabase/functions/<br/>router + handlers"]
+    Skills["skills/<br/>self-review etc."]
+    Web -->|HTTPS| Router
+  end
+
+  UserTable[("users_wa<br/>routing table<br/>(shared Supabase)")]
+  ClaudeAPI["Claude Sonnet 4.6"]
+  Sheets["Google Sheets API<br/>Eilon's sheet"]
+  CalLib(("calendar-skills"))
+
+  Cust --> WA
+  Trades --> WA
+  WA -->|webhook| Router
+  Router --> UserTable
+  Router --> ClaudeAPI
+  Router --> Sheets
+  Router -. imports .- CalLib
+  Owner -->|test| Web
+  Router -->|reply| WA
+
+  classDef repoCls fill:#162038,stroke:#7aa2ff,color:#e7ecf3
+  classDef extCls fill:#251a25,stroke:#c98cff,color:#e7ecf3
+  classDef warnCls fill:#2a221a,stroke:#f0b86e,color:#e7ecf3
+  class Web,Router,Skills,UserTable repoCls
+  class WA,ClaudeAPI,Sheets,CalLib extCls
+
+  click Web "https://github.com/basmanab88-lab/handyman/tree/main/web" _blank
+  click Router "https://github.com/basmanab88-lab/handyman/tree/main/supabase/functions" _blank
+  click Skills "https://github.com/basmanab88-lab/handyman/tree/main/skills" _blank
+  click CalLib "https://github.com/basmanab88-lab/calendar-skills" _blank
+    </pre>
+  </div>
+
+  <div class="grid-two">
+    <div class="info-card">
+      <h4>Canonical sheet</h4>
+      <p>One sheet rules them all — Eilon's customer list. Migration tools live in the repo. New customer? Append a row in the right format, the bot handles the rest.</p>
+    </div>
+    <div class="info-card">
+      <h4>WhatsApp 24h window</h4>
+      <p>Outbound messages outside the 24h conversation window require an approved template. <code>sent_via_wa: true</code> in the DB ≠ "delivered" — Meta can silently drop. Use wa.me/start as a workaround when needed.</p>
+    </div>
+    <div class="info-card">
+      <h4>Deploy gotcha</h4>
+      <p>The Edge Functions auto-deploy on push. The <code>web/</code> directory does NOT — run <code>vercel --prod --yes</code> from <code>handyman/web</code> after every push that touches it.</p>
+    </div>
+    <div class="info-card">
+      <h4>Cost tracking</h4>
+      <p>The <code>usage_log</code> table records tokens and cost per Claude call. Helpful for spotting runaway prompts.</p>
+    </div>
+  </div>
+
+  <div class="files">
+    <h3>Source paths</h3>
+    <div class="files-list">
+      <a class="file-row" href="https://github.com/basmanab88-lab/handyman/tree/main/web" target="_blank" rel="noopener">
+        <div><div class="name">web/</div><div class="desc">Test console frontend</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/handyman/tree/main/supabase/functions" target="_blank" rel="noopener">
+        <div><div class="name">supabase/functions/</div><div class="desc">WhatsApp router, Sheets ops, LLM</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/handyman/tree/main/skills" target="_blank" rel="noopener">
+        <div><div class="name">skills/</div><div class="desc">Operational skills (self-review, deploy protocol)</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/handyman/tree/main/skills/self-review" target="_blank" rel="noopener">
+        <div><div class="name">skills/self-review</div><div class="desc">Pre-deploy self-review protocol</div></div><span class="open">open ↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- Career Muse -->
+<!-- ============================================================ -->
+<section class="page" data-page="career-muse-os">
+  <div class="page-head">
+    <div class="crumbs">Product</div>
+    <h2>Career Muse OS</h2>
+    <p class="lede">Personal job-hunting OS — track applications, enrich leads, draft outreach. Built solo by Basman for his own job search, with the long-term plan of turning it into a fully autonomous career agent.</p>
+    <div class="meta-strip">
+      <span class="pill good">● active</span>
+      <span class="pill"><a href="https://github.com/basmanab88-lab/career-muse-os" target="_blank" rel="noopener">repo ↗</a></span>
+      <span class="pill"><a href="https://career-muse-os.vercel.app" target="_blank" rel="noopener">live ↗</a></span>
+      <span class="pill warn">⚠ Supabase auto-pauses (free tier)</span>
+      <span class="pill"><code>C:\Users\User\career-muse-os</code></span>
+    </div>
+    <div class="chips">
+      <span class="chip">React</span><span class="chip">Vite</span><span class="chip">TypeScript</span><span class="chip">shadcn/ui</span><span class="chip">Supabase</span>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+  Basman(["👤 Basman<br/>job hunting"])
+
+  Vercel["Vercel host"]
+
+  subgraph Repo [" 📦 Repo: career-muse-os "]
+    direction TB
+    FE["src/<br/>React + shadcn/ui"]
+    Edges["supabase/functions/<br/>edge fns"]
+    DB[("Supabase DB<br/>(separate from shared)")]
+    FE -->|HTTPS| Edges
+    Edges <--> DB
+  end
+
+  Claude["Anthropic Claude"]
+  Proxy["Proxycurl<br/>LinkedIn enrichment"]
+  Gmail["Gmail API<br/>basman@visitt.io"]
+
+  Basman -->|browser| Vercel --> FE
+  Edges --> Claude
+  Edges --> Proxy
+  Edges --> Gmail
+
+  Note["⚠️ Free tier · auto-pauses after ~7d idle.<br/>Restore via MCP restore_project."]
+
+  classDef repoCls fill:#162038,stroke:#7aa2ff,color:#e7ecf3
+  classDef extCls fill:#251a25,stroke:#c98cff,color:#e7ecf3
+  classDef warnCls fill:#2a221a,stroke:#f0b86e,color:#f0b86e
+  class FE,Edges,DB repoCls
+  class Claude,Proxy,Gmail,Vercel extCls
+  class Note warnCls
+
+  click FE "https://github.com/basmanab88-lab/career-muse-os/tree/main/src" _blank
+  click Edges "https://github.com/basmanab88-lab/career-muse-os/tree/main/supabase" _blank
+    </pre>
+  </div>
+
+  <div class="grid-two">
+    <div class="info-card">
+      <h4>Why separate from T-800</h4>
+      <p>Career Muse and T-800 are explicitly <strong>not</strong> linked. Different problem space, different security posture (career data is personal), different DB. <code>basman-brain</code> is the only shared dependency.</p>
+    </div>
+    <div class="info-card">
+      <h4>The "site doesn't load" check</h4>
+      <p>First suspect is always the free-tier auto-pause. Check Supabase project status, restore it. The frontend is fine — the backend just naps.</p>
+    </div>
+  </div>
+
+  <div class="files">
+    <h3>Source paths</h3>
+    <div class="files-list">
+      <a class="file-row" href="https://github.com/basmanab88-lab/career-muse-os/tree/main/src" target="_blank" rel="noopener">
+        <div><div class="name">src/</div><div class="desc">React + shadcn/ui frontend</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/career-muse-os/tree/main/supabase" target="_blank" rel="noopener">
+        <div><div class="name">supabase/</div><div class="desc">Edge Functions + migrations</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row" href="https://github.com/basmanab88-lab/career-muse-os/blob/main/package.json" target="_blank" rel="noopener">
+        <div><div class="name">package.json</div><div class="desc">Dependencies</div></div><span class="open">open ↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- Money Machine -->
+<!-- ============================================================ -->
+<section class="page" data-page="money-machine">
+  <div class="page-head">
+    <div class="crumbs">Product</div>
+    <h2>Money Machine — Trading + Content empire</h2>
+    <p class="lede">Two siblings under one umbrella: an automated crypto trading bot, and a multi-language content site generator. Trading bot is built and ready; capital flow is blocked at Binance deposit. Content machine is running.</p>
+    <div class="meta-strip">
+      <span class="pill bad">● trading: deposit BLOCKED</span>
+      <span class="pill good">● content: active</span>
+      <span class="pill"><a href="https://github.com/basmanab88-lab/money-machine" target="_blank" rel="noopener">trading repo ↗</a></span>
+      <span class="pill"><code>C:\Users\User\money-machine</code></span>
+      <span class="pill"><code>C:\Users\User\content-machine</code></span>
+    </div>
+    <div class="chips">
+      <span class="chip">Node.js</span><span class="chip">TypeScript</span><span class="chip">ccxt</span><span class="chip">Binance API</span><span class="chip">Cerebras AI</span>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+  subgraph Trading [" 💰 money-machine (Trading) "]
+    direction TB
+    Bot["Node bot<br/>src/"]
+    Strat["strategy module"]
+    Env[".env<br/>(Binance keys, not committed)"]
+    Bot --> Strat
+    Bot -.reads.- Env
+  end
+
+  subgraph Content [" 📝 content-machine (Content sites) "]
+    direction TB
+    Gen["Generator<br/>local only — no git remote"]
+    Quality["Quality gates"]
+    Sites["6 sites<br/>EN · ES · PT · AR · DE · HE"]
+    Gen --> Quality --> Sites
+  end
+
+  Binance["Binance API"]
+  Cerebras["Cerebras AI<br/>qwen-3-235b-a22b-instruct"]
+
+  Bot -->|orders| Binance
+  Gen -->|generate articles| Cerebras
+
+  Block["🚫 Deposit BLOCKED<br/>Israeli credit card rejected<br/>need to call card co. or find alternative"]
+  Block --> Bot
+
+  classDef repoCls fill:#162038,stroke:#7aa2ff,color:#e7ecf3
+  classDef extCls fill:#251a25,stroke:#c98cff,color:#e7ecf3
+  classDef blockCls fill:#3a1a1a,stroke:#e0716b,color:#e0716b
+  class Bot,Strat,Env,Gen,Quality,Sites repoCls
+  class Binance,Cerebras extCls
+  class Block blockCls
+
+  click Bot "https://github.com/basmanab88-lab/money-machine/tree/main/src" _blank
+    </pre>
+  </div>
+
+  <div class="grid-two">
+    <div class="info-card">
+      <h4>Trading status</h4>
+      <p>Code is ready, strategies are in. The blocker is purely operational — Binance won't accept Basman's Israeli credit card for deposit. Need to call the card company or find an alternative funding path.</p>
+    </div>
+    <div class="info-card">
+      <h4>Content rate limit</h4>
+      <p>Cerebras qwen model has an effective ~3-5 RPM. Test scripts sleep 25s between calls. Quality is high enough to justify it.</p>
+    </div>
+  </div>
+
+  <div class="files">
+    <h3>Source paths</h3>
+    <div class="files-list">
+      <a class="file-row" href="https://github.com/basmanab88-lab/money-machine/tree/main/src" target="_blank" rel="noopener">
+        <div><div class="name">money-machine/src/</div><div class="desc">Trading bot — strategy + execution</div></div><span class="open">open ↗</span>
+      </a>
+      <a class="file-row no-link">
+        <div><div class="name">money-machine/.env</div><div class="desc">Local-only — Binance keys, never committed</div></div><span class="open">local</span>
+      </a>
+      <a class="file-row no-link">
+        <div><div class="name">content-machine/</div><div class="desc">Local-only — no git remote yet</div></div><span class="open">local</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- Tools -->
+<!-- ============================================================ -->
+<section class="page" data-page="tools">
+  <div class="page-head">
+    <div class="crumbs">Tools</div>
+    <h2>Shared tools — Remotion + yt-helper</h2>
+    <p class="lede">Cross-cutting utilities that any Claude session can use on demand. Code-driven creative tools where Basman describes intent in plain language and Claude operates the tool.</p>
+    <div class="meta-strip">
+      <span class="pill good">● active</span>
+      <span class="pill"><code>C:\Users\User\my-video</code></span>
+      <span class="pill"><code>C:\Users\User\yt-helper</code></span>
+    </div>
+    <div class="chips">
+      <span class="chip">Remotion</span><span class="chip">React</span><span class="chip">Node.js</span>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+  Basman(["👤 Basman"])
+  Claude_T["Claude<br/>any session"]
+
+  subgraph LocalT [" Local only — no GitHub "]
+    direction TB
+    R["Remotion<br/>my-video/"]
+    Y["yt-helper<br/>yt-helper/fetch.js"]
+  end
+
+  Basman -->|"describes video / concept"| Claude_T
+  Claude_T -->|"writes JSX"| R
+  R -->|"renders"| Vid["out.mp4"]
+  Vid --> Basman
+
+  Basman -->|"shares YouTube URL"| Claude_T
+  Claude_T -->|"node fetch.js"| Y
+  Y --> Trans["transcript.txt"]
+  Trans --> Claude_T --> Basman
+
+  classDef toolCls fill:#162a22,stroke:#6cd28a,color:#e7ecf3
+  class R,Y,Vid,Trans toolCls
+    </pre>
+  </div>
+
+  <div class="grid-two">
+    <div class="info-card">
+      <h4>Operating mode</h4>
+      <p>Basman doesn't learn the tool — he describes the output in natural language; Claude writes the code and renders. He watches the result and iterates by describing changes.</p>
+    </div>
+    <div class="info-card">
+      <h4>When to use yt-helper</h4>
+      <p>Whenever Basman shares a YouTube URL mid-conversation — fetch the transcript and analyze inline instead of asking him to paste.</p>
+    </div>
+    <div class="info-card">
+      <h4>Remotion use cases</h4>
+      <p>Visualizing brainstorms, concept explanations, motion previews of UI flows — anything where text isn't enough but a static image isn't enough either.</p>
+    </div>
+    <div class="info-card">
+      <h4>No git remote</h4>
+      <p>These are personal tools, no sharing intended. Local-only is fine.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'dark',
+    securityLevel: 'loose',
+    themeVariables: {
+      background: '#131722',
+      primaryColor: '#162038',
+      primaryTextColor: '#e7ecf3',
+      primaryBorderColor: '#7aa2ff',
+      lineColor: '#5d667c',
+      secondaryColor: '#1a2030',
+      tertiaryColor: '#0b0d12',
+      fontFamily: 'ui-sans-serif, -apple-system, "Segoe UI", Roboto, Inter, system-ui, sans-serif'
+    },
+    flowchart: {
+      useMaxWidth: true,
+      htmlLabels: true,
+      curve: 'basis',
+      diagramPadding: 16
+    }
+  });
+
+  // Render all mermaid blocks once on load
+  await mermaid.run({ querySelector: 'pre.mermaid' });
+</script>
+
+<script>
+  // ---------- Hash router ----------
+  const pages = Array.from(document.querySelectorAll('.page'));
+  const links = Array.from(document.querySelectorAll('.nav-link'));
+
+  function activate(route) {
+    if (!route) route = 'overview';
+    pages.forEach(p => p.classList.toggle('active', p.dataset.page === route));
+    links.forEach(l => l.classList.toggle('active', l.dataset.route === route));
+    // Scroll to top of main
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  function routeFromHash() {
+    const h = location.hash.replace(/^#\/?/, '');
+    return h || 'overview';
+  }
+
+  window.addEventListener('hashchange', () => activate(routeFromHash()));
+  links.forEach(l => {
+    l.addEventListener('click', (e) => {
+      e.preventDefault();
+      location.hash = '#/' + l.dataset.route;
+    });
+  });
+
+  activate(routeFromHash());
+
+  // ---------- Search (global) ----------
+  // Build search index from page-heads and nav labels
+  const index = pages.map(p => {
+    const route = p.dataset.page;
+    const h2 = p.querySelector('.page-head h2')?.textContent || route;
+    const lede = p.querySelector('.page-head .lede')?.textContent || '';
+    const allText = p.textContent.toLowerCase();
+    return { route, title: h2, lede, allText };
+  });
+
+  const searchEl = document.getElementById('search');
+  const resultsEl = document.getElementById('search-results');
+
+  searchEl.addEventListener('input', () => {
+    const q = searchEl.value.trim().toLowerCase();
+    if (!q) { resultsEl.classList.remove('open'); resultsEl.innerHTML = ''; return; }
+    const hits = index.filter(e => e.allText.includes(q)).slice(0, 8);
+    if (!hits.length) {
+      resultsEl.innerHTML = '<div class="search-row" style="color:var(--text-faint)">no matches</div>';
+    } else {
+      resultsEl.innerHTML = hits.map(h => `
+        <div class="search-row" data-route="${h.route}">
+          <div>${h.title}</div>
+          <div class="ctx">${h.lede.slice(0, 110)}${h.lede.length > 110 ? '…' : ''}</div>
+        </div>
+      `).join('');
+    }
+    resultsEl.classList.add('open');
+  });
+
+  resultsEl.addEventListener('click', (e) => {
+    const row = e.target.closest('.search-row');
+    if (!row || !row.dataset.route) return;
+    location.hash = '#/' + row.dataset.route;
+    searchEl.value = '';
+    resultsEl.classList.remove('open');
+  });
+
+  // ---------- Keyboard shortcuts ----------
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement !== searchEl) {
+      e.preventDefault(); searchEl.focus();
+    } else if (e.key === 'Escape') {
+      if (document.activeElement === searchEl) { searchEl.value = ''; resultsEl.classList.remove('open'); searchEl.blur(); }
+    }
+  });
+</script>
+
+</body>
+</html>
