@@ -98,7 +98,124 @@
   .meta-strip .pill.warn { color: var(--warn); border-color: rgba(240,184,110,0.4); }
   .meta-strip .pill.bad { color: var(--bad); border-color: rgba(224,113,107,0.4); }
 
-  /* ---------- Custom HTML flow diagram (Overview) ---------- */
+  /* ---------- Hand-crafted SVG canvas (Overview) ---------- */
+  .canvas-wrap {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin: 20px 0;
+    position: relative;
+    overflow: hidden;
+    height: 82vh;
+    min-height: 760px;
+  }
+  .canvas-wrap svg.canvas {
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    display: block;
+  }
+  .canvas-wrap svg.canvas:active { cursor: grabbing; }
+
+  /* Zones */
+  .canvas svg .zone-bg,
+  svg.canvas .zone-bg {
+    fill: rgba(255,255,255,0.018);
+    stroke: rgba(255,255,255,0.06);
+    stroke-width: 1;
+  }
+  svg.canvas .zone-bg.bg-user   { fill: rgba(122,162,255,0.04); stroke: rgba(122,162,255,0.18); }
+  svg.canvas .zone-bg.bg-core   { fill: rgba(180,140,255,0.035); stroke: rgba(180,140,255,0.18); }
+  svg.canvas .zone-bg.bg-github { fill: rgba(122,162,255,0.025); stroke: rgba(122,162,255,0.15); }
+  svg.canvas .zone-bg.bg-cloud  { fill: rgba(108,210,138,0.035); stroke: rgba(108,210,138,0.2); }
+  svg.canvas .zone-bg.bg-ext    { fill: rgba(201,140,255,0.03); stroke: rgba(201,140,255,0.18); }
+  svg.canvas .zone-bg.bg-end    { fill: rgba(224,113,107,0.03); stroke: rgba(224,113,107,0.18); }
+
+  svg.canvas .zone-label {
+    fill: var(--text-faint);
+    font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
+    font-size: 18px;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  svg.canvas .zone-sublabel {
+    fill: var(--text-faint);
+    font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    opacity: 0.7;
+  }
+  svg.canvas .row-label {
+    fill: var(--text-faint);
+    font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  /* Cards */
+  svg.canvas .node { cursor: pointer; transition: transform 0.15s; }
+  svg.canvas .node .card {
+    fill: #1a2030;
+    stroke: var(--border-strong);
+    stroke-width: 2;
+    transition: stroke 0.15s, filter 0.15s;
+  }
+  svg.canvas .node:hover .card {
+    stroke: var(--accent);
+    stroke-width: 2.5;
+    filter: drop-shadow(0 6px 16px rgba(122,162,255,0.28));
+  }
+  svg.canvas .node .card-title {
+    fill: var(--text);
+    font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
+    font-size: 18px;
+    font-weight: 650;
+    text-anchor: middle;
+    pointer-events: none;
+  }
+  svg.canvas .node .card-sub {
+    fill: var(--text-faint);
+    font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    text-anchor: middle;
+    pointer-events: none;
+  }
+
+  /* Category strokes */
+  svg.canvas .node.user    .card { stroke: var(--accent); }
+  svg.canvas .node.core    .card { stroke: var(--core); }
+  svg.canvas .node.shared  .card { stroke: var(--shared); fill: #221a14; }
+  svg.canvas .node.product .card { stroke: var(--product); fill: #14192a; }
+  svg.canvas .node.cloud   .card { stroke: var(--good); fill: #142019; }
+  svg.canvas .node.ext     .card { stroke: #c98cff; fill: #1d1525; }
+  svg.canvas .node.enduser .card { stroke: var(--bad); fill: #20151a; }
+
+  /* Arrows */
+  svg.canvas .arrow {
+    fill: none;
+    stroke: var(--border-strong);
+    stroke-width: 2;
+  }
+  svg.canvas .arrow-label-bg {
+    fill: var(--bg-elev);
+    stroke: var(--border);
+    stroke-width: 1;
+  }
+  svg.canvas .arrow-label {
+    fill: var(--text-dim);
+    font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    text-anchor: middle;
+    pointer-events: none;
+  }
+
+  /* ---------- (legacy) HTML flowmap, kept for reference but unused ---------- */
   .flowmap {
     background: var(--bg-elev);
     border: 1px solid var(--border);
@@ -402,167 +519,8 @@
     <p class="lede">Bird's-eye view of Basman's product factory. The boxes are systems; the arrows are how data and code flow between them. Click any box to jump to its GitHub repo.</p>
   </div>
 
-  <div class="flowmap">
-
-    <!-- 1. Basman -->
-    <div class="flowmap-row center">
-      <a class="flowmap-card user" href="#/operation"
-         data-tooltip="You. The product manager and builder. Writes prompts in VS Code; Claude Code does the typing.">
-        <div class="card-label">👤 Basman</div>
-        <div class="card-sub">writes prompts in VS Code</div>
-      </a>
-    </div>
-    <div class="flowmap-arrow">types prompts</div>
-
-    <!-- 2. Workstation -->
-    <div class="flowmap-section">
-      <div class="flowmap-section-title"><span class="lbl-icon">💻</span>Workstation<span class="lbl-sub">your laptop — C:\Users\User</span></div>
-      <div class="flowmap-row center">
-        <a class="flowmap-card" href="#/operation"
-           data-tooltip="Claude Code CLI — the AI agent running in your terminal. Writes code, edits files, runs commands. Has access to your memory + skills + hooks.">
-          <div class="card-label">Claude Code CLI</div>
-          <div class="card-sub">the AI that writes code for you</div>
-        </a>
-        <a class="flowmap-card" href="#/claude-config"
-           data-tooltip="~/.claude hooks — Local automations. Auto-loads cross-product principles into prompts, syncs state to GitHub on every session end, detects learnings from transcripts.">
-          <div class="card-label">~/.claude hooks</div>
-          <div class="card-sub">auto-inject + auto-sync + detect</div>
-        </a>
-      </div>
-    </div>
-    <div class="flowmap-arrow">git push (manual + auto from Stop hook)</div>
-
-    <!-- 3. GitHub -->
-    <div class="flowmap-section">
-      <div class="flowmap-section-title"><span class="lbl-icon">🐙</span>GitHub<span class="lbl-sub">basmanab88-lab — source of truth</span></div>
-
-      <div class="flowmap-row">
-        <div class="flowmap-subgroup-label">Core / Brain</div>
-        <a class="flowmap-card core" href="#/basman-brain"
-           data-tooltip="basman-brain — Your personal/career knowledge. Markdown files every Claude session reads at the start of any career conversation.">
-          <div class="card-label">basman-brain</div>
-          <div class="card-sub">your career knowledge</div>
-        </a>
-        <a class="flowmap-card core" href="#/claude-config"
-           data-tooltip="claude-config — GitHub backup of Claude's operational state (hooks, skills, memory, settings). Auto-synced from ~/.claude. Any new machine restores in one command.">
-          <div class="card-label">claude-config</div>
-          <div class="card-sub">Claude's backup state</div>
-        </a>
-      </div>
-
-      <div class="flowmap-row">
-        <div class="flowmap-subgroup-label">Shared module</div>
-        <a class="flowmap-card shared" href="#/calendar-skills"
-           data-tooltip="calendar-skills — Shared TypeScript module for Google Calendar + Hebrew/English time parsing. Used by T-800 + HandyMan via raw URL import. One fix, every product.">
-          <div class="card-label">calendar-skills</div>
-          <div class="card-sub">consumed by T-800 + HandyMan at runtime</div>
-        </a>
-      </div>
-
-      <div class="flowmap-row">
-        <div class="flowmap-subgroup-label">Product repos</div>
-        <a class="flowmap-card product" href="#/t-800"
-           data-tooltip="T-800 — Your personal assistant bot. Calendar, scheduling, WhatsApp-first. React frontend + Supabase Edge Function backend.">
-          <div class="card-label">t-800</div>
-          <div class="card-sub">personal assistant bot</div>
-        </a>
-        <a class="flowmap-card product" href="#/handyman"
-           data-tooltip="HandyMan — WhatsApp bot for a handyman business. Reads/writes a canonical Google Sheet via Claude + Google Sheets API.">
-          <div class="card-label">handyman</div>
-          <div class="card-sub">handyman business bot</div>
-        </a>
-        <a class="flowmap-card product" href="#/career-muse-os"
-           data-tooltip="Career Muse OS — Your job-hunting OS. Tracks applications, enriches leads, drafts outreach. Long-term: a fully autonomous career agent.">
-          <div class="card-label">career-muse-os</div>
-          <div class="card-sub">your job-hunting OS</div>
-        </a>
-        <a class="flowmap-card product" href="#/money-machine"
-           data-tooltip="Money Machine — Crypto trading bot (built, deposit blocked) + multi-language content site generator.">
-          <div class="card-label">money-machine</div>
-          <div class="card-sub">trading + content empire</div>
-        </a>
-      </div>
-    </div>
-    <div class="flowmap-arrow">auto-deploy on push (Vercel + Supabase webhooks)</div>
-
-    <!-- 4. Cloud Hosting -->
-    <div class="flowmap-section">
-      <div class="flowmap-section-title"><span class="lbl-icon">☁️</span>Cloud Hosting<span class="lbl-sub">where products actually run</span></div>
-      <div class="flowmap-row center">
-        <a class="flowmap-card cloud" href="#/vercel"
-           data-tooltip="Vercel — Hosts your React frontends. Auto-deploys on every git push, except HandyMan's web/ which needs manual `vercel --prod`.">
-          <div class="card-label">Vercel</div>
-          <div class="card-sub">web frontends (React)</div>
-        </a>
-        <a class="flowmap-card cloud" href="#/supabase-shared"
-           data-tooltip="Shared Supabase project — Postgres database + serverless Edge Functions (small TypeScript backends that run on-demand). 22 tables, 21 functions. Powers T-800 + HandyMan from one place.">
-          <div class="card-label">Supabase: shared project</div>
-          <div class="card-sub">T-800 + HandyMan · 22 tables · 21 Edge Functions</div>
-        </a>
-        <a class="flowmap-card cloud" href="#/supabase-career-muse"
-           data-tooltip="Career Muse Supabase project — Fully separate from the shared one. 27 tables, 22 edge functions. Free tier, auto-pauses after ~7 days idle.">
-          <div class="card-label">Supabase: career-muse</div>
-          <div class="card-sub">separate · 27 tables · 22 Edge Functions</div>
-        </a>
-      </div>
-    </div>
-    <div class="flowmap-arrow">products call external services at runtime</div>
-
-    <!-- 5. External APIs -->
-    <div class="flowmap-section">
-      <div class="flowmap-section-title"><span class="lbl-icon">🔌</span>External APIs<span class="lbl-sub">what the products call from the cloud</span></div>
-      <div class="flowmap-row center">
-        <a class="flowmap-card ext" href="#/anthropic"
-           data-tooltip="Anthropic Claude API — The primary LLM brain. Claude Sonnet 4.6 used by T-800, HandyMan, and Career Muse for chat + agent work.">
-          <div class="card-label">Anthropic Claude</div>
-          <div class="card-sub">primary LLM (Sonnet 4.6)</div>
-        </a>
-        <a class="flowmap-card ext" href="#/cerebras"
-           data-tooltip="Cerebras — Fast, cheap inference (qwen-3-235b). T-800 fallback when Claude is rate-limited; content-machine's primary engine for multi-language articles.">
-          <div class="card-label">Cerebras</div>
-          <div class="card-sub">fast/cheap fallback LLM</div>
-        </a>
-        <a class="flowmap-card ext" href="#/google"
-           data-tooltip="Google APIs — Calendar (T-800), Sheets (HandyMan), Gmail (Career Muse). Three separate Google Cloud projects, one per product.">
-          <div class="card-label">Google APIs</div>
-          <div class="card-sub">Calendar · Sheets · Gmail · Tasks</div>
-        </a>
-        <a class="flowmap-card ext" href="#/whatsapp"
-           data-tooltip="WhatsApp Cloud API (Meta) — One business number serves T-800 + HandyMan. Routing by phone via the users_wa table.">
-          <div class="card-label">WhatsApp Cloud (Meta)</div>
-          <div class="card-sub">one number, two products</div>
-        </a>
-        <a class="flowmap-card ext" href="#/google"
-           data-tooltip="Proxycurl — LinkedIn profile enrichment. Used by Career Muse to enrich outreach targets with employer + role data.">
-          <div class="card-label">Proxycurl</div>
-          <div class="card-sub">LinkedIn enrichment</div>
-        </a>
-        <a class="flowmap-card ext" href="#/binance"
-           data-tooltip="Binance — Crypto exchange. Money Machine trading bot would execute orders here. Currently blocked at deposit (Israeli card rejected).">
-          <div class="card-label">Binance</div>
-          <div class="card-sub">crypto exchange (blocked)</div>
-        </a>
-      </div>
-    </div>
-    <div class="flowmap-arrow">serves end users via web + WhatsApp</div>
-
-    <!-- 6. End Users -->
-    <div class="flowmap-section">
-      <div class="flowmap-section-title"><span class="lbl-icon">👥</span>End users<span class="lbl-sub">who actually talks to your products</span></div>
-      <div class="flowmap-row center">
-        <a class="flowmap-card enduser" href="#/vercel"
-           data-tooltip="Browser users — anyone who opens your Vercel-hosted web apps (T-800, Career Muse, HandyMan test console).">
-          <div class="card-label">browser users</div>
-          <div class="card-sub">via Vercel frontends</div>
-        </a>
-        <a class="flowmap-card enduser" href="#/whatsapp"
-           data-tooltip="WhatsApp users — anyone messaging your business number. Routed by phone to T-800 (calendar/scheduling) or HandyMan (handyman ops).">
-          <div class="card-label">WhatsApp users</div>
-          <div class="card-sub">customers + tradesmen via Meta</div>
-        </a>
-      </div>
-    </div>
-
+  <div class="canvas-wrap" id="overview-canvas-wrap">
+    <!-- SVG canvas is generated by JS below (see renderOverviewCanvas) -->
   </div>
 
   <div class="grid-two">
@@ -2135,6 +2093,249 @@ flowchart LR
 <div class="custom-tooltip" id="custom-tip"></div>
 
 <script>
+  // ============================================================
+  // OVERVIEW SVG CANVAS — hand-laid-out, infinite-zoom vector
+  // ============================================================
+  (function buildOverviewCanvas() {
+    const wrap = document.getElementById('overview-canvas-wrap');
+    if (!wrap) return;
+
+    // Layout data: zones top-to-bottom, cards within each zone.
+    // x positions are computed automatically by centering each row.
+    const CANVAS_W = 2600;
+    const CARD_W = 260, CARD_H = 88, GAP = 28;
+
+    const layout = [
+      {
+        id: 'you', label: 'YOU', sublabel: 'the one writing prompts',
+        bg: 'bg-user', h: 170, arrowIn: null,
+        rows: [{
+          cards: [
+            { id: 'basman', label: '👤 Basman', sub: 'writes prompts in VS Code',
+              cls: 'user', href: '#/operation',
+              tip: 'You. The product manager and builder. Writes prompts in VS Code; Claude Code does the typing.' }
+          ]
+        }]
+      },
+      {
+        id: 'ws', label: 'WORKSTATION', sublabel: 'your laptop',
+        bg: 'bg-core', h: 200, arrowIn: 'types prompts',
+        rows: [{
+          cards: [
+            { id: 'cc', label: 'Claude Code CLI', sub: 'the AI that writes code for you',
+              cls: 'core', href: '#/operation',
+              tip: 'Claude Code CLI — the AI agent running in your terminal. Writes code, edits files, runs commands. Has access to your memory + skills + hooks.' },
+            { id: 'hooks', label: '~/.claude hooks', sub: 'inject + sync + detect',
+              cls: 'core', href: '#/claude-config',
+              tip: '~/.claude hooks — Local automations. Auto-loads cross-product principles into prompts, syncs state to GitHub on every session end, detects learnings from transcripts.' }
+          ]
+        }]
+      },
+      {
+        id: 'github', label: 'GITHUB', sublabel: 'basmanab88-lab · source of truth',
+        bg: 'bg-github', h: 530, arrowIn: 'git push',
+        rows: [
+          {
+            rowLabel: 'Core / Brain (knowledge, not products)',
+            cards: [
+              { id: 'bb', label: 'basman-brain', sub: 'your career knowledge',
+                cls: 'core', href: '#/basman-brain',
+                tip: 'basman-brain — Your personal/career knowledge. Markdown files every Claude session reads at the start of any career conversation.' },
+              { id: 'cfg', label: 'claude-config', sub: "Claude's operational state",
+                cls: 'core', href: '#/claude-config',
+                tip: "claude-config — GitHub backup of Claude's hooks, skills, memory, settings. Auto-synced from ~/.claude. Any new machine restores in one command." }
+            ]
+          },
+          {
+            rowLabel: 'Shared module (consumed at runtime)',
+            cards: [
+              { id: 'cs', label: 'calendar-skills', sub: 'used by T-800 + HandyMan',
+                cls: 'shared', href: '#/calendar-skills',
+                tip: 'calendar-skills — Shared TypeScript module for Google Calendar + Hebrew/English time parsing. Used by T-800 + HandyMan via raw URL import. One fix, every product.' }
+            ]
+          },
+          {
+            rowLabel: 'Product repos',
+            cards: [
+              { id: 't800', label: 't-800', sub: 'personal assistant bot',
+                cls: 'product', href: '#/t-800',
+                tip: 'T-800 — Your personal assistant bot. Calendar, scheduling, WhatsApp-first. React frontend + Supabase Edge Function backend.' },
+              { id: 'hm', label: 'handyman', sub: 'handyman business bot',
+                cls: 'product', href: '#/handyman',
+                tip: 'HandyMan — WhatsApp bot for a handyman business. Reads/writes a canonical Google Sheet via Claude + Google Sheets API.' },
+              { id: 'cmos', label: 'career-muse-os', sub: 'your job-hunting OS',
+                cls: 'product', href: '#/career-muse-os',
+                tip: 'Career Muse OS — Tracks applications, enriches leads, drafts outreach. Long-term: a fully autonomous career agent.' },
+              { id: 'mmt', label: 'money-machine', sub: 'trading + content',
+                cls: 'product', href: '#/money-machine',
+                tip: 'Money Machine — Crypto trading bot (built, deposit blocked) + multi-language content site generator.' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'cloud', label: 'CLOUD HOSTING', sublabel: 'where products actually run',
+        bg: 'bg-cloud', h: 200, arrowIn: 'auto-deploy on push',
+        rows: [{
+          cards: [
+            { id: 'vercel', label: 'Vercel', sub: 'web frontends (React)',
+              cls: 'cloud', href: '#/vercel',
+              tip: 'Vercel — Hosts your React frontends. Auto-deploys on every git push (except HandyMan web/ which needs manual `vercel --prod`).' },
+            { id: 'supshared', label: 'Supabase: shared', sub: 'T-800 + HandyMan · 22 tables · 21 Edge Functions',
+              cls: 'cloud', href: '#/supabase-shared',
+              tip: 'Shared Supabase project — Postgres database + serverless Edge Functions (small TypeScript backends that run on-demand). Powers T-800 + HandyMan from one place.' },
+            { id: 'supcm', label: 'Supabase: career-muse', sub: 'separate · 27 tables · 22 Edge Functions',
+              cls: 'cloud', href: '#/supabase-career-muse',
+              tip: 'Career Muse Supabase project — Fully separate from the shared one. Free tier, auto-pauses after ~7 days idle.' }
+          ]
+        }]
+      },
+      {
+        id: 'ext', label: 'EXTERNAL APIs', sublabel: 'what the products call from the cloud',
+        bg: 'bg-ext', h: 200, arrowIn: 'products call external services',
+        rows: [{
+          cards: [
+            { id: 'claude', label: 'Anthropic Claude', sub: 'primary LLM (Sonnet 4.6)',
+              cls: 'ext', href: '#/anthropic',
+              tip: 'Anthropic Claude API — The primary LLM brain. Sonnet 4.6 used by T-800, HandyMan, and Career Muse.' },
+            { id: 'cer', label: 'Cerebras', sub: 'fast/cheap fallback LLM',
+              cls: 'ext', href: '#/cerebras',
+              tip: 'Cerebras — Fast, cheap inference (qwen-3-235b). T-800 fallback; content-machine primary.' },
+            { id: 'goog', label: 'Google APIs', sub: 'Calendar · Sheets · Gmail · Tasks',
+              cls: 'ext', href: '#/google',
+              tip: 'Google APIs — Calendar (T-800), Sheets (HandyMan), Gmail (Career Muse). Three separate GCP projects.' },
+            { id: 'wa', label: 'WhatsApp Cloud', sub: 'Meta · one number, two products',
+              cls: 'ext', href: '#/whatsapp',
+              tip: 'WhatsApp Cloud API (Meta) — One business number serves T-800 + HandyMan. Routing by phone via the users_wa table.' },
+            { id: 'prx', label: 'Proxycurl', sub: 'LinkedIn enrichment',
+              cls: 'ext', href: '#/google',
+              tip: 'Proxycurl — LinkedIn profile enrichment. Used by Career Muse to enrich outreach targets.' },
+            { id: 'bn', label: 'Binance', sub: 'crypto exchange (blocked)',
+              cls: 'ext', href: '#/binance',
+              tip: 'Binance — Crypto exchange. Money Machine would execute orders here. Currently blocked at deposit.' }
+          ]
+        }]
+      },
+      {
+        id: 'users', label: 'END USERS', sublabel: 'who talks to your products',
+        bg: 'bg-end', h: 200, arrowIn: 'serves users via web + WhatsApp',
+        rows: [{
+          cards: [
+            { id: 'web', label: '🖥️ browser users', sub: 'via Vercel frontends',
+              cls: 'enduser', href: '#/vercel',
+              tip: 'Browser users — anyone who opens your Vercel-hosted web apps (T-800, Career Muse, HandyMan test console).' },
+            { id: 'waapp', label: '💬 WhatsApp users', sub: 'customers + tradesmen via Meta',
+              cls: 'enduser', href: '#/whatsapp',
+              tip: 'WhatsApp users — anyone messaging your business number. Routed by phone to T-800 or HandyMan.' }
+          ]
+        }]
+      }
+    ];
+
+    function esc(s) {
+      return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // Build SVG content
+    const parts = [];
+    const ZONE_PAD_X = 80;
+    const ZONE_GAP_Y = 40;
+    let y = 40;
+    const totalSpacingForArrows = 0;
+    // pre-compute total height
+    let totalH = 40;
+    layout.forEach((z, i) => {
+      totalH += z.h;
+      if (i < layout.length - 1) totalH += ZONE_GAP_Y + 30; // arrow space
+    });
+    totalH += 40;
+
+    layout.forEach((zone, zi) => {
+      const zoneTop = y;
+      const zoneBottom = y + zone.h;
+      // zone background
+      parts.push(`<rect x="${ZONE_PAD_X}" y="${zoneTop}" width="${CANVAS_W - 2*ZONE_PAD_X}" height="${zone.h}" rx="18" class="zone-bg ${zone.bg}"/>`);
+      // zone label
+      parts.push(`<text x="${ZONE_PAD_X + 28}" y="${zoneTop + 38}" class="zone-label">${esc(zone.label)}</text>`);
+      if (zone.sublabel) {
+        // position sublabel after the label, with some space
+        const labelW = zone.label.length * 12 + 30;
+        parts.push(`<text x="${ZONE_PAD_X + 28 + labelW}" y="${zoneTop + 38}" class="zone-sublabel">${esc(zone.sublabel)}</text>`);
+      }
+
+      // rows inside the zone
+      const innerTop = zoneTop + 60; // below the zone label
+      const innerBottom = zoneBottom - 20;
+      const innerH = innerBottom - innerTop;
+      const rowH = innerH / zone.rows.length;
+
+      zone.rows.forEach((row, ri) => {
+        const rowTop = innerTop + ri * rowH;
+        // row label if any
+        if (row.rowLabel) {
+          parts.push(`<text x="${ZONE_PAD_X + 28}" y="${rowTop + 22}" class="row-label">${esc(row.rowLabel)}</text>`);
+        }
+        // Card positions: centered across canvas
+        const n = row.cards.length;
+        const totalCardsW = n * CARD_W + (n - 1) * GAP;
+        const startX = (CANVAS_W - totalCardsW) / 2;
+        const cardY = rowTop + (row.rowLabel ? 32 : (rowH - CARD_H) / 2);
+        row.cards.forEach((card, ci) => {
+          const cx = startX + ci * (CARD_W + GAP);
+          const cy = cardY;
+          const tcx = cx + CARD_W / 2;
+          parts.push(`
+  <g class="node ${esc(card.cls)}" data-tooltip="${esc(card.tip)}" data-href="${esc(card.href)}">
+    <rect x="${cx}" y="${cy}" width="${CARD_W}" height="${CARD_H}" rx="12" class="card"/>
+    <text x="${tcx}" y="${cy + 38}" class="card-title">${esc(card.label)}</text>
+    <text x="${tcx}" y="${cy + 64}" class="card-sub">${esc(card.sub)}</text>
+  </g>`);
+        });
+      });
+
+      y = zoneBottom;
+
+      // inter-zone arrow
+      if (zi < layout.length - 1) {
+        const nextZone = layout[zi + 1];
+        const arrowStartY = zoneBottom + 6;
+        const arrowEndY   = zoneBottom + ZONE_GAP_Y + 24;
+        const arrowMidY   = (arrowStartY + arrowEndY) / 2;
+        const ax = CANVAS_W / 2;
+        // arrow line
+        parts.push(`<path d="M${ax},${arrowStartY} L${ax},${arrowEndY}" class="arrow" marker-end="url(#arrowhead)"/>`);
+        // label badge
+        if (nextZone.arrowIn) {
+          const txtW = nextZone.arrowIn.length * 7.5 + 28;
+          parts.push(`<rect x="${ax - txtW/2}" y="${arrowMidY - 13}" width="${txtW}" height="26" rx="13" class="arrow-label-bg"/>`);
+          parts.push(`<text x="${ax}" y="${arrowMidY + 5}" class="arrow-label">${esc(nextZone.arrowIn)}</text>`);
+        }
+        y = arrowEndY;
+      }
+    });
+
+    const svg = `<svg class="canvas" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CANVAS_W} ${totalH}" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#5d667c"/>
+    </marker>
+  </defs>
+  ${parts.join('\n')}
+</svg>`;
+
+    wrap.innerHTML = svg;
+
+    // Click handlers on every node
+    wrap.querySelectorAll('g.node').forEach(g => {
+      g.addEventListener('click', (e) => {
+        const href = g.dataset.href;
+        if (href) location.hash = href.replace(/^#/, '');
+      });
+    });
+  })();
+</script>
+
+<script>
   // ---------- Universal hover tooltip ----------
   const tipEl = document.getElementById('custom-tip');
   let _tipHideTimer = null;
@@ -2253,10 +2454,10 @@ flowchart LR
 
   // Wrap each rendered SVG with pan-zoom
   function applyPanZoom() {
+    // Mermaid SVGs (other pages)
     document.querySelectorAll('.diagram .mermaid svg').forEach(svg => {
       if (svg.__panZoomApplied) return;
       svg.__panZoomApplied = true;
-      // mermaid sets these inline; we need them to fill the container
       svg.removeAttribute('width');
       svg.removeAttribute('height');
       svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
@@ -2277,7 +2478,27 @@ flowchart LR
           mouseWheelZoomEnabled: true,
           preventMouseEventsDefault: false,
         });
-      } catch (e) { console.warn('pan-zoom init failed', e); }
+      } catch (e) { console.warn('pan-zoom init failed (mermaid)', e); }
+    });
+    // Hand-crafted SVG canvas (Overview)
+    document.querySelectorAll('.canvas-wrap svg.canvas').forEach(svg => {
+      if (svg.__panZoomApplied) return;
+      svg.__panZoomApplied = true;
+      try {
+        svg.__panZoom = svgPanZoom(svg, {
+          zoomEnabled: true,
+          panEnabled: true,
+          controlIconsEnabled: true,
+          fit: true,
+          center: true,
+          minZoom: 0.15,
+          maxZoom: 20,
+          contain: false,
+          dblClickZoomEnabled: true,
+          mouseWheelZoomEnabled: true,
+          preventMouseEventsDefault: false,
+        });
+      } catch (e) { console.warn('pan-zoom init failed (canvas)', e); }
     });
   }
   applyPanZoom();
@@ -2294,23 +2515,23 @@ flowchart LR
     d.appendChild(hint);
   });
 
-  // Re-fit pan-zoom when a page becomes visible (its container size may have changed)
-  window.addEventListener('hashchange', () => {
-    setTimeout(() => {
-      document.querySelectorAll('.page.active .diagram .mermaid svg').forEach(svg => {
-        if (svg.__panZoom) {
-          try { svg.__panZoom.resize(); svg.__panZoom.fit(); svg.__panZoom.center(); } catch (e) {}
-        }
-      });
-    }, 50);
-  });
+  function refitAllVisible() {
+    document.querySelectorAll('.page.active .diagram .mermaid svg, .page.active .canvas-wrap svg.canvas').forEach(svg => {
+      if (svg.__panZoom) {
+        try { svg.__panZoom.resize(); svg.__panZoom.fit(); svg.__panZoom.center(); } catch (e) {}
+      }
+    });
+  }
+  window.addEventListener('hashchange', () => setTimeout(refitAllVisible, 60));
   window.addEventListener('resize', () => {
-    document.querySelectorAll('.diagram .mermaid svg').forEach(svg => {
+    document.querySelectorAll('.diagram .mermaid svg, .canvas-wrap svg.canvas').forEach(svg => {
       if (svg.__panZoom) {
         try { svg.__panZoom.resize(); svg.__panZoom.fit(); svg.__panZoom.center(); } catch (e) {}
       }
     });
   });
+  // Initial fit after a tick (in case fonts loaded)
+  setTimeout(refitAllVisible, 100);
 </script>
 
 <script>
