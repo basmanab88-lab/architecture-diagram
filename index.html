@@ -68,6 +68,10 @@
   .nav-link.product .dot { background: var(--product); }
   .nav-link.tool .dot { background: var(--tool); }
   .nav-link.meta .dot { background: var(--text-dim); }
+  .nav-link.infra .dot { background: #c98cff; }
+
+  /* infra sub-links indented */
+  .nav-link.sub { padding-left: 22px; font-size: 12px; }
 
   /* ---------- Main ---------- */
   main.content {
@@ -232,6 +236,17 @@
 
   <div class="nav-section">Tools</div>
   <a class="nav-link tool" data-route="tools"><span class="dot"></span>Remotion + yt-helper</a>
+
+  <div class="nav-section">Infrastructure</div>
+  <a class="nav-link infra" data-route="supabase"><span class="dot"></span>Supabase</a>
+  <a class="nav-link infra sub" data-route="supabase-shared"><span class="dot"></span>↳ shared (T-800 + HandyMan)</a>
+  <a class="nav-link infra sub" data-route="supabase-career-muse"><span class="dot"></span>↳ career-muse</a>
+  <a class="nav-link infra" data-route="vercel"><span class="dot"></span>Vercel</a>
+  <a class="nav-link infra" data-route="whatsapp"><span class="dot"></span>WhatsApp Cloud</a>
+  <a class="nav-link infra" data-route="google"><span class="dot"></span>Google APIs</a>
+  <a class="nav-link infra" data-route="anthropic"><span class="dot"></span>Anthropic Claude</a>
+  <a class="nav-link infra" data-route="cerebras"><span class="dot"></span>Cerebras</a>
+  <a class="nav-link infra" data-route="binance"><span class="dot"></span>Binance</a>
 </aside>
 
 <main class="content">
@@ -335,13 +350,21 @@ flowchart TB
   class Vercel,SupaShared,SupaCM cloudCls
   class AI,CB,Goog,WA,BN,PRX extCls
 
-  click BB "https://github.com/basmanab88-lab/basman-brain" _blank
-  click CFG "https://github.com/basmanab88-lab/claude-config" _blank
-  click CS "https://github.com/basmanab88-lab/calendar-skills" _blank
-  click T800 "https://github.com/basmanab88-lab/t-800" _blank
-  click HM "https://github.com/basmanab88-lab/handyman" _blank
-  click CMOS "https://github.com/basmanab88-lab/career-muse-os" _blank
-  click MMT "https://github.com/basmanab88-lab/money-machine" _blank
+  click BB "#/basman-brain"
+  click CFG "#/claude-config"
+  click CS "#/calendar-skills"
+  click T800 "#/t-800"
+  click HM "#/handyman"
+  click CMOS "#/career-muse-os"
+  click MMT "#/money-machine"
+  click Vercel "#/vercel"
+  click SupaShared "#/supabase-shared"
+  click SupaCM "#/supabase-career-muse"
+  click AI "#/anthropic"
+  click CB "#/cerebras"
+  click Goog "#/google"
+  click WA "#/whatsapp"
+  click BN "#/binance"
     </pre>
   </div>
 
@@ -450,9 +473,14 @@ flowchart LR
   class Vcl,SBE,AutoPR depCls
   class EU,Web,WAP,Run_V,Run_SB,Run_AI,Run_Ext runCls
 
-  click Cfg "https://github.com/basmanab88-lab/claude-config" _blank
-  click Brain "https://github.com/basmanab88-lab/basman-brain" _blank
-  click Cal "https://github.com/basmanab88-lab/calendar-skills" _blank
+  click Cfg "#/claude-config"
+  click Brain "#/basman-brain"
+  click Cal "#/calendar-skills"
+  click Prods "#/overview"
+  click Vcl "#/vercel"
+  click SBE "#/supabase"
+  click Run_AI "#/anthropic"
+  click Run_Ext "#/google"
   click StopH "https://github.com/basmanab88-lab/claude-config/blob/main/hooks/sync-claude-config.js" _blank
   click Hooks "https://github.com/basmanab88-lab/claude-config/blob/main/hooks/inject-principles.js" _blank
   click PR "https://github.com/basmanab88-lab/claude-config/blob/main/PRINCIPLES.md" _blank
@@ -805,7 +833,11 @@ flowchart LR
   click FE "https://github.com/basmanab88-lab/t-800/tree/main/src" _blank
   click Chat "https://github.com/basmanab88-lab/t-800/tree/main/supabase/functions/chat" _blank
   click Mig "https://github.com/basmanab88-lab/t-800/tree/main/supabase/migrations" _blank
-  click CalLib "https://github.com/basmanab88-lab/calendar-skills" _blank
+  click DB "#/supabase-shared"
+  click Claude "#/anthropic"
+  click GCal "#/google"
+  click WAWebhook "#/whatsapp"
+  click CalLib "#/calendar-skills"
     </pre>
   </div>
 
@@ -903,7 +935,11 @@ flowchart LR
   click Web "https://github.com/basmanab88-lab/handyman/tree/main/web" _blank
   click Router "https://github.com/basmanab88-lab/handyman/tree/main/supabase/functions" _blank
   click Skills "https://github.com/basmanab88-lab/handyman/tree/main/skills" _blank
-  click CalLib "https://github.com/basmanab88-lab/calendar-skills" _blank
+  click UserTable "#/supabase-shared"
+  click WA "#/whatsapp"
+  click ClaudeAPI "#/anthropic"
+  click Sheets "#/google"
+  click CalLib "#/calendar-skills"
     </pre>
   </div>
 
@@ -1001,6 +1037,10 @@ flowchart LR
 
   click FE "https://github.com/basmanab88-lab/career-muse-os/tree/main/src" _blank
   click Edges "https://github.com/basmanab88-lab/career-muse-os/tree/main/supabase" _blank
+  click DB "#/supabase-career-muse"
+  click Vercel "#/vercel"
+  click Claude "#/anthropic"
+  click Gmail "#/google"
     </pre>
   </div>
 
@@ -1088,6 +1128,8 @@ flowchart LR
   class Block blockCls
 
   click Bot "https://github.com/basmanab88-lab/money-machine/tree/main/src" _blank
+  click Binance "#/binance"
+  click Cerebras "#/cerebras"
     </pre>
   </div>
 
@@ -1179,6 +1221,710 @@ flowchart LR
     <div class="info-card">
       <h4>No git remote</h4>
       <p>These are personal tools, no sharing intended. Local-only is fine.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SUPABASE — OVERVIEW -->
+<!-- ============================================================ -->
+<section class="page" data-page="supabase">
+  <div class="page-head">
+    <div class="crumbs">Infrastructure</div>
+    <h2>Supabase</h2>
+    <p class="lede">Two Supabase projects under one organization. The shared one powers T-800 + HandyMan (same WhatsApp number, routed by phone). The Career Muse one is intentionally separate — different problem space, different security posture, free tier that naps when idle.</p>
+    <div class="meta-strip">
+      <span class="pill">2 projects</span>
+      <span class="pill">org: zsaldmnfmqpjtmicnvqi</span>
+      <span class="pill"><a href="https://supabase.com/dashboard" target="_blank" rel="noopener">dashboard ↗</a></span>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+  T800["T-800"]
+  HM["HandyMan"]
+  CMOS["Career Muse OS"]
+
+  SupaShared["Shared Supabase project<br/>22 tables · 21 edge fns<br/>region: ap-southeast-1"]
+  SupaCM["Career Muse Supabase<br/>27 tables · 22 edge fns<br/>region: eu-central-1<br/>⚠ free tier · auto-pauses"]
+
+  T800 --> SupaShared
+  HM --> SupaShared
+  CMOS --> SupaCM
+
+  classDef p fill:#162038,stroke:#7aa2ff,color:#e7ecf3
+  classDef i fill:#251a25,stroke:#c98cff,color:#e7ecf3
+  class T800,HM,CMOS p
+  class SupaShared,SupaCM i
+
+  click T800 "#/t-800"
+  click HM "#/handyman"
+  click CMOS "#/career-muse-os"
+  click SupaShared "#/supabase-shared"
+  click SupaCM "#/supabase-career-muse"
+    </pre>
+  </div>
+
+  <div class="grid-two">
+    <div class="info-card">
+      <h4>Shared project</h4>
+      <p>Hosts T-800 + HandyMan. Same DB, same edge function runtime. Routing by phone via <code>users_wa</code>. <a href="#/supabase-shared">Drill in →</a></p>
+    </div>
+    <div class="info-card">
+      <h4>Career Muse project</h4>
+      <p>Fully isolated. 22 edge functions powering the job pipeline, CV tailoring, outreach generation, browser extension. <a href="#/supabase-career-muse">Drill in →</a></p>
+    </div>
+    <div class="info-card">
+      <h4>⚠ RLS security debt</h4>
+      <p><strong>12 tables across both projects have Row Level Security disabled</strong> — anyone with the anon key can read/modify them. See each project page for the full list and remediation SQL.</p>
+    </div>
+    <div class="info-card">
+      <h4>Why two projects</h4>
+      <p>Career Muse data is personal (job search). It shouldn't share auth context with T-800/HandyMan's WhatsApp business flows. Different threat model = different project.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SUPABASE SHARED -->
+<!-- ============================================================ -->
+<section class="page" data-page="supabase-shared">
+  <div class="page-head">
+    <div class="crumbs">Infrastructure · Supabase</div>
+    <h2>Shared Supabase project — T-800 + HandyMan</h2>
+    <p class="lede">22 tables and 21 edge functions split between two products that share one WhatsApp number. Routing happens at the message level via the <code>users_wa</code> table.</p>
+    <div class="meta-strip">
+      <span class="pill good">● ACTIVE_HEALTHY</span>
+      <span class="pill">postgres 17.6</span>
+      <span class="pill">region: ap-southeast-1</span>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart TB
+  WA["📱 WhatsApp Webhook<br/>(verify_jwt: false)"]
+  T800Front["T-800 web frontend"]
+  HMFront["HandyMan test console"]
+
+  subgraph EF_T800 [" T-800 edge functions "]
+    direction TB
+    chat["chat<br/>(main LLM)"]
+    whatsapp_t["whatsapp<br/>(webhook)"]
+    whatsapp_connect["whatsapp-connect"]
+    google_sync["google-sync"]
+    item_ops["item-ops"]
+    whisper["whisper<br/>(audio)"]
+    linkedin["linkedin-enrich"]
+    auth_exch["auth-exchange"]
+  end
+
+  subgraph EF_HM [" HandyMan edge functions (hm2-* / handyman-*) "]
+    direction TB
+    hm2_webhook["hm2-webhook<br/>(WhatsApp entry)"]
+    hm2_oauth["hm2-oauth"]
+    hm_setup["handyman-setup"]
+    hm_monitor["handyman-monitor"]
+    hm_incident["handyman-incident-responder"]
+    hm_qa["handyman-qa<br/>(quality QA agent)"]
+    hm_misc["handyman-* (others)<br/>preview · contact · sandbox · etc."]
+  end
+
+  subgraph Tables_Shared [" Shared tables "]
+    direction LR
+    users_wa[("users_wa<br/>routing table")]
+    usage_log[("usage_log<br/>cost tracking")]
+    wa_proc[("whatsapp_processed<br/>dedup")]
+    wh_reg[("webhook_registry")]
+  end
+
+  subgraph Tables_T800 [" T-800 tables "]
+    direction LR
+    t_chat[("chat_messages")]
+    t_msg[("messages")]
+    t_tasks[("tasks")]
+    t_items[("items")]
+    t_act[("activity_log")]
+    t_set[("settings")]
+    t_notes[("note_docs")]
+  end
+
+  subgraph Tables_HM [" HandyMan tables (handyman_*) "]
+    direction LR
+    hm_sess[("handyman_sessions")]
+    hm_users[("handyman_users")]
+    hm_inc[("handyman_incidents")]
+    hm_q[("handyman_quality_events")]
+    hm_dbg[("handyman_debug_log")]
+    hm_more[("backup · monitor_state ·<br/>migrate_backup · contact_requests ·<br/>sandbox_sessions")]
+  end
+
+  WA --> hm2_webhook
+  WA --> whatsapp_t
+  T800Front --> chat
+  HMFront --> hm_setup
+
+  whatsapp_t --> users_wa
+  hm2_webhook --> users_wa
+  users_wa -.routes by phone.-> chat
+  users_wa -.routes by phone.-> hm2_webhook
+
+  chat --> t_chat
+  chat --> t_msg
+  chat --> t_tasks
+  chat --> usage_log
+  hm2_webhook --> hm_sess
+  hm2_webhook --> hm_users
+  hm2_webhook --> usage_log
+  hm_monitor --> hm_inc
+  hm_qa --> hm_q
+
+  classDef ef fill:#162a22,stroke:#6cd28a,color:#e7ecf3
+  classDef tbl fill:#1a2030,stroke:#364162,color:#e7ecf3
+  classDef shared fill:#2a221a,stroke:#f0b86e,color:#e7ecf3
+  class chat,whatsapp_t,whatsapp_connect,google_sync,item_ops,whisper,linkedin,auth_exch,hm2_webhook,hm2_oauth,hm_setup,hm_monitor,hm_incident,hm_qa,hm_misc ef
+  class t_chat,t_msg,t_tasks,t_items,t_act,t_set,t_notes,hm_sess,hm_users,hm_inc,hm_q,hm_dbg,hm_more tbl
+  class users_wa,usage_log,wa_proc,wh_reg shared
+
+  click WA "#/whatsapp"
+  click chat "https://github.com/basmanab88-lab/t-800/tree/main/supabase/functions/chat" _blank
+  click hm2_webhook "https://github.com/basmanab88-lab/handyman/tree/main/supabase/functions" _blank
+    </pre>
+  </div>
+
+  <div class="grid-two">
+    <div class="info-card">
+      <h4>The split</h4>
+      <p>T-800 functions live in <code>basmanab88-lab/t-800</code>. HandyMan functions are <code>hm2-*</code> and <code>handyman-*</code> prefixed in <code>basmanab88-lab/handyman</code>. They deploy to the same Supabase runtime.</p>
+    </div>
+    <div class="info-card">
+      <h4>Routing pattern</h4>
+      <p>WhatsApp doesn't know which product. The webhook handler looks up the incoming phone in <code>users_wa</code> and dispatches to the right edge function. One number, two products.</p>
+    </div>
+    <div class="info-card">
+      <h4>⚠ RLS disabled on 8 tables</h4>
+      <p><code>users</code>, <code>items</code>, <code>users_wa</code>, <code>usage_log</code>, <code>handyman_backup</code>, <code>handyman_users</code>, <code>handyman_debug_log</code>, <code>handyman_quality_events</code>. Anyone with the anon key can read or modify them. Fix before sharing the anon key in any public client.</p>
+    </div>
+    <div class="info-card">
+      <h4>Quality + incidents pipeline</h4>
+      <p><code>handyman-qa</code> runs a Claude QA agent over conversations and writes to <code>handyman_quality_events</code>. <code>handyman-incident-responder</code> turns alerts into Claude diagnoses, PRs, WA approvals, deploys — full lifecycle in <code>handyman_incidents</code>.</p>
+    </div>
+  </div>
+
+  <div class="files">
+    <h3>All 21 edge functions (slug · auth)</h3>
+    <div class="files-list">
+      <a class="file-row" href="https://github.com/basmanab88-lab/t-800/tree/main/supabase/functions/chat" target="_blank" rel="noopener"><div><div class="name">chat</div><div class="desc">T-800 main LLM handler · verify_jwt: true</div></div><span class="open">repo ↗</span></a>
+      <div class="file-row no-link"><div><div class="name">whatsapp</div><div class="desc">T-800 WhatsApp webhook · verify_jwt: false (public)</div></div><span class="open">edge fn</span></div>
+      <div class="file-row no-link"><div><div class="name">whatsapp-connect</div><div class="desc">T-800 WA OAuth flow</div></div><span class="open">edge fn</span></div>
+      <div class="file-row no-link"><div><div class="name">google-sync</div><div class="desc">T-800 Google Calendar sync</div></div><span class="open">edge fn</span></div>
+      <div class="file-row no-link"><div><div class="name">auth-exchange</div><div class="desc">T-800 auth token exchange</div></div><span class="open">edge fn</span></div>
+      <div class="file-row no-link"><div><div class="name">item-ops</div><div class="desc">T-800 item CRUD</div></div><span class="open">edge fn</span></div>
+      <div class="file-row no-link"><div><div class="name">whisper</div><div class="desc">T-800 audio transcription</div></div><span class="open">edge fn</span></div>
+      <div class="file-row no-link"><div><div class="name">linkedin-enrich</div><div class="desc">T-800 LinkedIn enrichment via Proxycurl</div></div><span class="open">edge fn</span></div>
+      <a class="file-row" href="https://github.com/basmanab88-lab/handyman/tree/main/supabase/functions" target="_blank" rel="noopener"><div><div class="name">hm2-webhook</div><div class="desc">HandyMan WhatsApp entry · verify_jwt: false (public)</div></div><span class="open">repo ↗</span></a>
+      <div class="file-row no-link"><div><div class="name">hm2-oauth</div><div class="desc">HandyMan OAuth flow · public</div></div><span class="open">edge fn</span></div>
+      <div class="file-row no-link"><div><div class="name">handyman-setup</div><div class="desc">Onboarding handler</div></div><span class="open">edge fn</span></div>
+      <div class="file-row no-link"><div><div class="name">handyman-monitor</div><div class="desc">Production monitoring · public</div></div><span class="open">edge fn</span></div>
+      <div class="file-row no-link"><div><div class="name">handyman-incident-responder</div><div class="desc">Alert → Claude → PR → WA approval → deploy</div></div><span class="open">edge fn</span></div>
+      <div class="file-row no-link"><div><div class="name">handyman-qa</div><div class="desc">Quality agent over conversations</div></div><span class="open">edge fn</span></div>
+      <div class="file-row no-link"><div><div class="name">handyman-preview · -contact · -sandbox · -test · -clone-status · -migrate-month-sections</div><div class="desc">Various HandyMan utility functions</div></div><span class="open">edge fns</span></div>
+      <div class="file-row no-link"><div><div class="name">admin-sandbox · admin-invite-user</div><div class="desc">Admin tooling</div></div><span class="open">edge fns</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SUPABASE — CAREER MUSE -->
+<!-- ============================================================ -->
+<section class="page" data-page="supabase-career-muse">
+  <div class="page-head">
+    <div class="crumbs">Infrastructure · Supabase</div>
+    <h2>Career Muse Supabase project</h2>
+    <p class="lede">27 tables, 22 edge functions powering the full job hunting pipeline: ingest → classify → enrich → tailor → outreach. Has its own browser extension surface (extension-pair, extension-ingest). EU region.</p>
+    <div class="meta-strip">
+      <span class="pill good">● ACTIVE_HEALTHY</span>
+      <span class="pill">postgres 17.6</span>
+      <span class="pill">region: eu-central-1</span>
+      <span class="pill warn">⚠ free tier · auto-pauses ~7d idle</span>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart TB
+  Basman(["👤 Basman"])
+  Ext["browser extension"]
+  Web["career-muse-os.vercel.app"]
+
+  subgraph Ingest [" 1. Ingest "]
+    direction TB
+    ext_pair["extension-pair"]
+    ext_ingest["extension-ingest"]
+    jobs_ingest["jobs-ingest"]
+    sync_jobs["sync-jobs"]
+  end
+
+  subgraph Process [" 2. Classify + Enrich "]
+    direction TB
+    jobs_classify["jobs-classify"]
+    enrich_dir["enrich-directory-job"]
+    li_enrich["linkedin-enrich"]
+    sync_tm["sync-techmap"]
+    gen_emb["generate-embeddings"]
+  end
+
+  subgraph Act [" 3. Act "]
+    direction TB
+    resume_tailor["resume-tailor"]
+    cv_async["cv-tailor-async"]
+    cv_copy["create-cv-copy"]
+    outreach_gen["outreach-generate"]
+    msg_gen["message-generate"]
+    job_alerts["run-job-alerts"]
+  end
+
+  subgraph Agent [" 4. Agent "]
+    direction TB
+    agent["agent"]
+    agent_run["agent-run"]
+    search_i["search-interpret"]
+    brain["brain<br/>(brain integration)"]
+  end
+
+  subgraph Tables [" Tables (27) "]
+    direction LR
+    jobs[("jobs / jobs_directory ·<br/>job_contacts · job_alerts ·<br/>job_alert_matches")]
+    contacts[("contacts ·<br/>global_contacts")]
+    resumes[("resumes ·<br/>resume_files")]
+    outreach[("outreach_messages ·<br/>outreach_companies ·<br/>outreach_updates ·<br/>outreach_research_settings")]
+    li_cache[("linkedin_company_cache")]
+    google_t[("google_tokens")]
+    agent_tbl[("agent_runs ·<br/>agent_results")]
+    brain_tbl[("brain_profile + skills/projects/<br/>people/learning_log")]
+    misc[("settings ·<br/>extension_tokens ·<br/>suggestion_preferences ·<br/>user_signals")]
+  end
+
+  Basman --> Ext --> ext_pair
+  Basman --> Web
+  Web --> agent_run
+  Web --> resume_tailor
+  Web --> outreach_gen
+  ext_ingest --> jobs_ingest --> jobs_classify --> jobs
+  jobs_classify --> enrich_dir --> li_cache
+  resume_tailor --> resumes
+  outreach_gen --> outreach
+  agent_run --> agent_tbl
+  brain --> brain_tbl
+
+  classDef ef fill:#162a22,stroke:#6cd28a,color:#e7ecf3
+  classDef tbl fill:#1a2030,stroke:#364162,color:#e7ecf3
+  class ext_pair,ext_ingest,jobs_ingest,sync_jobs,jobs_classify,enrich_dir,li_enrich,sync_tm,gen_emb,resume_tailor,cv_async,cv_copy,outreach_gen,msg_gen,job_alerts,agent,agent_run,search_i,brain ef
+  class jobs,contacts,resumes,outreach,li_cache,google_t,agent_tbl,brain_tbl,misc tbl
+
+  click Web "#/career-muse-os"
+    </pre>
+  </div>
+
+  <div class="grid-two">
+    <div class="info-card">
+      <h4>Pipeline shape</h4>
+      <p>4 layers: ingest → process → act → agent. The agent layer orchestrates the others — <code>agent-run</code> is the autonomous loop's entry point.</p>
+    </div>
+    <div class="info-card">
+      <h4>Browser extension</h4>
+      <p>The Chrome extension pairs once via <code>extension-pair</code> and ingests jobs via <code>extension-ingest</code>. Token stored in <code>extension_tokens</code>.</p>
+    </div>
+    <div class="info-card">
+      <h4>Brain integration</h4>
+      <p>The 5 <code>brain_*</code> tables and <code>brain</code> edge function are the bridge from this project's data to <code>basman-brain</code>'s personal context. Job pipeline knows your skills, projects, people.</p>
+    </div>
+    <div class="info-card">
+      <h4>⚠ RLS disabled on 4 tables</h4>
+      <p><code>brain_skills</code>, <code>brain_projects</code>, <code>brain_people</code>, <code>brain_learning_log</code> — sensitive personal data with no RLS. Fix before any anon-key client access.</p>
+    </div>
+  </div>
+
+  <div class="files">
+    <h3>All 22 edge functions</h3>
+    <div class="files-list">
+      <div class="file-row no-link"><div><div class="name">agent · agent-run</div><div class="desc">Autonomous agent + run loop</div></div><span class="open">edge fns</span></div>
+      <div class="file-row no-link"><div><div class="name">search-interpret · brain</div><div class="desc">Query interpretation + brain bridge</div></div><span class="open">edge fns</span></div>
+      <div class="file-row no-link"><div><div class="name">jobs-ingest · jobs-classify · sync-jobs · run-job-alerts</div><div class="desc">Jobs pipeline</div></div><span class="open">edge fns</span></div>
+      <div class="file-row no-link"><div><div class="name">enrich-directory-job · linkedin-enrich · sync-techmap</div><div class="desc">Enrichment</div></div><span class="open">edge fns</span></div>
+      <div class="file-row no-link"><div><div class="name">resume-tailor · cv-tailor-async · create-cv-copy · resume-sync-base</div><div class="desc">CV tailoring</div></div><span class="open">edge fns</span></div>
+      <div class="file-row no-link"><div><div class="name">outreach-generate · outreach-refresh · message-generate</div><div class="desc">Outreach drafting</div></div><span class="open">edge fns</span></div>
+      <div class="file-row no-link"><div><div class="name">extension-pair · extension-ingest</div><div class="desc">Browser extension surface</div></div><span class="open">edge fns</span></div>
+      <div class="file-row no-link"><div><div class="name">generate-embeddings · refresh-google-token</div><div class="desc">Supporting infra</div></div><span class="open">edge fns</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- VERCEL -->
+<!-- ============================================================ -->
+<section class="page" data-page="vercel">
+  <div class="page-head">
+    <div class="crumbs">Infrastructure</div>
+    <h2>Vercel — frontend hosting</h2>
+    <p class="lede">Hosts all the React frontends. Auto-deploys from GitHub for most repos — except HandyMan's web console, which is manual.</p>
+    <div class="meta-strip">
+      <span class="pill"><a href="https://vercel.com/dashboard" target="_blank" rel="noopener">dashboard ↗</a></span>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+  subgraph Repos [" GitHub repos "]
+    direction TB
+    R_T["t-800"]
+    R_CM["career-muse-os"]
+    R_HM["handyman/web"]
+  end
+
+  subgraph Vercel [" Vercel deployments "]
+    direction TB
+    D_T["t-800-beryl.vercel.app<br/>(also hosts /handyman-test)"]
+    D_CM["career-muse-os.vercel.app"]
+  end
+
+  R_T -->|auto-deploy on push| D_T
+  R_CM -->|auto-deploy on push| D_CM
+  R_HM -. ⚠ manual: vercel --prod .-> D_T
+
+  classDef repo fill:#162038,stroke:#7aa2ff,color:#e7ecf3
+  classDef dep fill:#162a22,stroke:#6cd28a,color:#e7ecf3
+  class R_T,R_CM,R_HM repo
+  class D_T,D_CM dep
+
+  click R_T "#/t-800"
+  click R_HM "#/handyman"
+  click R_CM "#/career-muse-os"
+    </pre>
+  </div>
+
+  <div class="grid-two">
+    <div class="info-card">
+      <h4>Deploy pattern</h4>
+      <p>Push to <code>main</code> on T-800 or Career Muse → Vercel detects, builds, deploys, swaps. The whole loop is ~60-90s. No manual step.</p>
+    </div>
+    <div class="info-card">
+      <h4>⚠ HandyMan exception</h4>
+      <p>HandyMan's <code>web/</code> directory shares the t-800-beryl host (at <code>/handyman-test</code>) but is NOT wired to GitHub auto-deploy. Run <code>vercel --prod --yes</code> from <code>handyman/web</code> after every push that touches it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- WHATSAPP -->
+<!-- ============================================================ -->
+<section class="page" data-page="whatsapp">
+  <div class="page-head">
+    <div class="crumbs">Infrastructure</div>
+    <h2>WhatsApp Cloud API</h2>
+    <p class="lede">One business number serving two products. Inbound messages hit a single webhook; the <code>users_wa</code> table dispatches by phone to T-800 or HandyMan logic. Outbound is governed by Meta's 24h conversation window.</p>
+  </div>
+
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+  Cust(["customer"])
+  Trade(["tradesman"])
+  Other(["any user"])
+
+  WA["WhatsApp Cloud API<br/>(Meta)"]
+
+  Webhook_T["t-800 webhook<br/>edge fn: whatsapp"]
+  Webhook_H["handyman webhook<br/>edge fn: hm2-webhook"]
+  UsersWA[("users_wa<br/>routing by phone")]
+
+  Cust --> WA
+  Trade --> WA
+  Other --> WA
+  WA -->|"inbound"| Webhook_T
+  WA -->|"inbound"| Webhook_H
+  Webhook_T --> UsersWA
+  Webhook_H --> UsersWA
+
+  ChatLogic["T-800 handler"]
+  HMLogic["HandyMan handler"]
+  UsersWA -.routes by phone.-> ChatLogic
+  UsersWA -.routes by phone.-> HMLogic
+
+  ChatLogic -->|"reply"| WA
+  HMLogic -->|"reply"| WA
+  WA --> Cust
+  WA --> Trade
+
+  classDef ext fill:#251a25,stroke:#c98cff,color:#e7ecf3
+  classDef logic fill:#162038,stroke:#7aa2ff,color:#e7ecf3
+  class WA,Webhook_T,Webhook_H ext
+  class ChatLogic,HMLogic,UsersWA logic
+
+  click UsersWA "#/supabase-shared"
+  click Webhook_T "#/t-800"
+  click Webhook_H "#/handyman"
+    </pre>
+  </div>
+
+  <div class="grid-two">
+    <div class="info-card">
+      <h4>24h conversation window</h4>
+      <p>Outbound messages outside the 24h window need an approved template. <code>sent_via_wa: true</code> in DB ≠ delivered. Use <code>wa.me/start</code> link as workaround when the window has closed.</p>
+    </div>
+    <div class="info-card">
+      <h4>Why share the number</h4>
+      <p>One verified Meta business number, two products, zero confusion: routing happens at the message handler. Customers don't see internal product names.</p>
+    </div>
+    <div class="info-card">
+      <h4>Dedup</h4>
+      <p><code>whatsapp_processed</code> table records every webhook delivery to prevent double-processing on Meta retries.</p>
+    </div>
+    <div class="info-card">
+      <h4>Webhook auth</h4>
+      <p>Both webhooks have <code>verify_jwt: false</code> — they must, because Meta's webhook doesn't carry a JWT. Don't run <code>supabase functions deploy</code> without re-applying <code>--no-verify-jwt</code> (the CLI resets it on every deploy).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- GOOGLE APIs -->
+<!-- ============================================================ -->
+<section class="page" data-page="google">
+  <div class="page-head">
+    <div class="crumbs">Infrastructure</div>
+    <h2>Google APIs — Calendar · Sheets · Gmail · Tasks</h2>
+    <p class="lede">Three Google Cloud projects, four APIs, three products. OAuth tokens are stored per-product in their respective Supabase projects.</p>
+  </div>
+
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+  subgraph GCP [" Google Cloud projects "]
+    direction TB
+    P_T800["t-800-ai"]
+    P_HM["handyman-bot-492620"]
+    P_CM["(implicit) career-muse"]
+  end
+
+  subgraph APIs [" APIs in use "]
+    direction TB
+    Cal["Google Calendar API"]
+    Sheets["Google Sheets API"]
+    Gmail["Gmail API"]
+    Tasks["Google Tasks API"]
+  end
+
+  subgraph Tokens [" Token storage "]
+    direction TB
+    T_T["T-800: google-sync edge fn"]
+    T_HM["HandyMan: service account<br/>handyman-sheets@*"]
+    T_CM["Career Muse:<br/>google_tokens table"]
+  end
+
+  T800["T-800"]
+  HM["HandyMan"]
+  CMOS["Career Muse"]
+  N8N["n8n flow"]
+
+  T800 --> P_T800 --> Cal
+  T800 --> P_T800 --> Tasks
+  P_T800 --> T_T
+
+  HM --> P_HM --> Sheets
+  P_HM --> T_HM
+
+  CMOS --> P_CM --> Gmail
+  P_CM --> T_CM
+
+  N8N -. bi-directional sync .-> Tasks
+
+  classDef prod fill:#162038,stroke:#7aa2ff,color:#e7ecf3
+  classDef gcp fill:#2a221a,stroke:#f0b86e,color:#e7ecf3
+  classDef api fill:#251a25,stroke:#c98cff,color:#e7ecf3
+  class T800,HM,CMOS prod
+  class P_T800,P_HM,P_CM gcp
+  class Cal,Sheets,Gmail,Tasks api
+
+  click T800 "#/t-800"
+  click HM "#/handyman"
+  click CMOS "#/career-muse-os"
+    </pre>
+  </div>
+
+  <div class="grid-two">
+    <div class="info-card">
+      <h4>Per-product GCP project</h4>
+      <p>Quotas + OAuth screens are per-project. Keeping T-800 and HandyMan in separate GCP projects means a HandyMan API quota spike can't take down T-800.</p>
+    </div>
+    <div class="info-card">
+      <h4>Service account vs OAuth</h4>
+      <p>HandyMan uses a service account (<code>handyman-sheets@handyman-bot-492620.iam</code>) — no user OAuth needed, just share the sheet with the service account. T-800 + Career Muse use user OAuth (per-user tokens).</p>
+    </div>
+    <div class="info-card">
+      <h4>Calendar logic isolation</h4>
+      <p>All calendar parsing/formatting lives in <a href="#/calendar-skills">calendar-skills</a> — not in T-800 or HandyMan. Fix a calendar bug once.</p>
+    </div>
+    <div class="info-card">
+      <h4>Google Tasks via n8n</h4>
+      <p>Bi-directional sync between Google Tasks and the products goes through an n8n workflow — not direct API calls.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ANTHROPIC -->
+<!-- ============================================================ -->
+<section class="page" data-page="anthropic">
+  <div class="page-head">
+    <div class="crumbs">Infrastructure</div>
+    <h2>Anthropic Claude API</h2>
+    <p class="lede">The primary LLM across every customer-facing product. Claude Sonnet 4.6 for chat/agent work; cost tracked per-call in the <code>usage_log</code> table.</p>
+  </div>
+
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+  subgraph Consumers [" Consumers "]
+    direction TB
+    T800["T-800<br/>(chat edge fn)"]
+    HM["HandyMan<br/>(hm2-webhook · handyman-qa · -incident-responder)"]
+    CMOS["Career Muse<br/>(agent · agent-run · resume-tailor · outreach-generate)"]
+  end
+
+  Claude["Anthropic Claude API<br/>claude-sonnet-4-6"]
+
+  T800 --> Claude
+  HM --> Claude
+  CMOS --> Claude
+
+  UL[("usage_log<br/>tokens · cost per call")]
+  T800 --> UL
+  HM --> UL
+
+  classDef prod fill:#162038,stroke:#7aa2ff,color:#e7ecf3
+  classDef ai fill:#251a25,stroke:#c98cff,color:#e7ecf3
+  class T800,HM,CMOS prod
+  class Claude ai
+
+  click T800 "#/t-800"
+  click HM "#/handyman"
+  click CMOS "#/career-muse-os"
+  click UL "#/supabase-shared"
+    </pre>
+  </div>
+
+  <div class="grid-two">
+    <div class="info-card">
+      <h4>Model</h4>
+      <p>Claude Sonnet 4.6 (<code>claude-sonnet-4-6</code>) for chat + agent loops. Switched T-800 from Cerebras to Claude on 2026-04-05 on quality grounds.</p>
+    </div>
+    <div class="info-card">
+      <h4>Cost tracking</h4>
+      <p>Every Claude call from T-800/HandyMan writes a row to <code>usage_log</code> with tokens + computed cost. Helpful for catching runaway prompts.</p>
+    </div>
+    <div class="info-card">
+      <h4>Where Claude lives in the code</h4>
+      <p>T-800: <code>supabase/functions/chat</code>. HandyMan: the webhook + QA + incident-responder fns. Career Muse: agent/run + tailor/generate fns.</p>
+    </div>
+    <div class="info-card">
+      <h4>Fallback</h4>
+      <p>Cerebras is kept as a fallback provider for T-800 — used historically when Claude was rate-limited. See <a href="#/cerebras">Cerebras page</a>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CEREBRAS -->
+<!-- ============================================================ -->
+<section class="page" data-page="cerebras">
+  <div class="page-head">
+    <div class="crumbs">Infrastructure</div>
+    <h2>Cerebras — qwen-3-235b</h2>
+    <p class="lede">Fast inference, lower quality than Claude. Used as T-800's historical fallback and as the primary engine for content-machine (quality is high enough at that scale).</p>
+    <div class="meta-strip">
+      <span class="pill">model: qwen-3-235b-a22b-instruct-2507</span>
+      <span class="pill warn">⚠ ~3-5 RPM effective</span>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+  T800["T-800<br/>(fallback only)"]
+  Content["content-machine<br/>(primary)"]
+
+  Cerebras["Cerebras API<br/>qwen-3-235b-a22b-instruct"]
+
+  T800 -. fallback path .-> Cerebras
+  Content --> Cerebras
+
+  classDef prod fill:#162038,stroke:#7aa2ff,color:#e7ecf3
+  classDef ai fill:#251a25,stroke:#c98cff,color:#e7ecf3
+  class T800,Content prod
+  class Cerebras ai
+
+  click T800 "#/t-800"
+  click Content "#/money-machine"
+    </pre>
+  </div>
+
+  <div class="grid-two">
+    <div class="info-card">
+      <h4>Rate limit reality</h4>
+      <p>Despite official higher limits, qwen on Cerebras hits ~3-5 RPM in practice. Test scripts sleep 25s between calls; content-machine batches accordingly.</p>
+    </div>
+    <div class="info-card">
+      <h4>Why kept around</h4>
+      <p>For content-machine specifically, Claude would cost too much for the volume. Cerebras is cheap enough to generate quality-gated articles at scale across 6 languages.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- BINANCE -->
+<!-- ============================================================ -->
+<section class="page" data-page="binance">
+  <div class="page-head">
+    <div class="crumbs">Infrastructure</div>
+    <h2>Binance API</h2>
+    <p class="lede">The trading bot's execution venue. Code is ready. Deposit is blocked.</p>
+    <div class="meta-strip">
+      <span class="pill bad">● deposit BLOCKED</span>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+  Bot["money-machine bot<br/>(Node + ccxt)"]
+  Binance["Binance API"]
+
+  Bot -->|API calls work| Binance
+  Block["🚫 Deposit blocked<br/>Israeli credit card rejected"]:::blocked
+  Block --> Bot
+
+  classDef blocked fill:#3a1a1a,stroke:#e0716b,color:#e0716b
+  classDef p fill:#162038,stroke:#7aa2ff,color:#e7ecf3
+  classDef ext fill:#251a25,stroke:#c98cff,color:#e7ecf3
+  class Bot p
+  class Binance ext
+
+  click Bot "#/money-machine"
+    </pre>
+  </div>
+
+  <div class="grid-two">
+    <div class="info-card">
+      <h4>What works</h4>
+      <p>API keys are provisioned. ccxt connects. Strategy logic is implemented. Read endpoints work.</p>
+    </div>
+    <div class="info-card">
+      <h4>What doesn't</h4>
+      <p>Funding. Israeli credit card was rejected at deposit. Options: call the card company, find a crypto on-ramp Binance accepts from Israel, or switch venues.</p>
     </div>
   </div>
 </section>
