@@ -1,0 +1,64 @@
+@import "tailwindcss";
+@import "@xyflow/react/dist/style.css";
+
+@theme inline {
+  --color-bg: #0a0d12;
+  --color-surface: #131722;
+  --color-surface-elev: #1a2030;
+  --color-border: #232a3d;
+  --color-border-strong: #364162;
+  --color-text: #e7ecf3;
+  --color-text-dim: #8a93a8;
+  --color-text-faint: #5d667c;
+  --color-accent: #7aa2ff;
+  --color-good: #6cd28a;
+  --color-warn: #f0b86e;
+  --color-bad: #e0716b;
+  --color-core: #b48cff;
+  --color-shared: #f0b86e;
+  --color-product: #7aa2ff;
+  --color-cloud: #6cd28a;
+  --color-ext: #c98cff;
+  --color-enduser: #e0716b;
+
+  --font-sans: "Inter", ui-sans-serif, -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Consolas, monospace;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv02", "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* React Flow dark mode tuning */
+.react-flow {
+  background: var(--color-bg);
+  --xy-edge-stroke-default: var(--color-border-strong);
+  --xy-edge-stroke-width-default: 1.75px;
+  --xy-controls-button-background-color-default: var(--color-surface);
+  --xy-controls-button-background-color-hover-default: var(--color-surface-elev);
+  --xy-controls-button-color-default: var(--color-text-dim);
+  --xy-controls-button-color-hover-default: var(--color-text);
+  --xy-controls-button-border-color-default: var(--color-border);
+}
+.react-flow__attribution { display: none; }
+.react-flow__controls {
+  box-shadow: none;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.react-flow__controls button {
+  border-bottom-color: var(--color-border) !important;
+}
+.react-flow__minimap {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
