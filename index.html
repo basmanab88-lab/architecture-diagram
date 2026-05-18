@@ -103,16 +103,53 @@
     background: var(--bg-elev);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 24px;
     margin: 20px 0;
-    overflow-x: auto;
+    position: relative;
+    overflow: hidden;
+    height: 680px;
   }
   .diagram .mermaid {
-    /* mermaid sets its own styles, we just constrain */
+    width: 100%;
+    height: 100%;
     text-align: center;
   }
-  .diagram .mermaid svg { max-width: 100%; height: auto; }
+  .diagram .mermaid svg {
+    max-width: none !important;
+    width: 100% !important;
+    height: 100% !important;
+    cursor: grab;
+  }
+  .diagram .mermaid svg:active { cursor: grabbing; }
   .diagram-loading { color: var(--text-faint); font-size: 13px; text-align: center; padding: 40px; }
+
+  .pan-hint {
+    position: absolute; top: 10px; left: 14px;
+    font-size: 11px; color: var(--text-faint);
+    background: rgba(11,13,18,0.85);
+    padding: 5px 10px; border-radius: 4px;
+    pointer-events: none; z-index: 10;
+    border: 1px solid var(--border);
+  }
+  .pan-hint kbd {
+    font-family: inherit; background: rgba(255,255,255,0.08);
+    padding: 1px 5px; border-radius: 3px; font-size: 10px;
+  }
+  /* svg-pan-zoom control buttons styling */
+  .diagram svg [id*="svg-pan-zoom"] rect { fill: rgba(19,23,34,0.85) !important; stroke: var(--border) !important; }
+  .diagram svg [id*="svg-pan-zoom"] path { fill: var(--text-dim) !important; }
+  /* Mermaid tooltip styling */
+  .mermaidTooltip {
+    background: var(--bg-elev-2) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--accent) !important;
+    border-radius: 6px !important;
+    padding: 8px 12px !important;
+    font-size: 12.5px !important;
+    max-width: 320px !important;
+    line-height: 1.4 !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
+    z-index: 9999 !important;
+  }
 
   /* ---------- Cards ---------- */
   .grid-two {
@@ -264,27 +301,33 @@
   <div class="diagram">
     <pre class="mermaid">
 flowchart TB
-  Basman([👤 Basman])
 
-  subgraph WS [" 💻 Workstation — C:\Users\User "]
+  Basman(["👤 Basman"])
+
+  subgraph WS [" 💻 Workstation — your laptop "]
     direction LR
     CC["Claude Code CLI"]
-    Hooks["~/.claude hooks<br/>inject-principles<br/>sync-config<br/>detect-learnings"]
+    Hooks["~/.claude hooks"]
     CC --- Hooks
   end
 
-  Basman --> CC
+  Basman -->|"writes prompts"| CC
 
-  subgraph GH [" 🐙 GitHub — basmanab88-lab "]
-    direction LR
-    subgraph CORE [Core / Brain]
+  subgraph GH [" 🐙 GitHub — basmanab88-lab (source of truth) "]
+    direction TB
+
+    subgraph CB_GROUP [" Core / Brain (knowledge, not products) "]
+      direction LR
       BB["basman-brain"]
       CFG["claude-config"]
     end
-    subgraph SHARED [Shared module]
+
+    subgraph SH_GROUP [" Shared module "]
       CS["calendar-skills"]
     end
-    subgraph PRODUCTS [Product repos]
+
+    subgraph PR_GROUP [" Product repos "]
+      direction LR
       T800["t-800"]
       HM["handyman"]
       CMOS["career-muse-os"]
@@ -292,79 +335,77 @@ flowchart TB
     end
   end
 
-  CC -->|"writes code · git push"| GH
-  CC -->|"Stop hook · auto-sync"| CFG
+  CC -->|"git push"| PR_GROUP
+  CC -->|"git push"| CB_GROUP
+  CC -->|"tag release"| CS
 
-  subgraph CLOUD [" ☁️ Cloud Hosting "]
+  subgraph CLOUD [" ☁️ Cloud Hosting (where products actually run) "]
     direction LR
-    Vercel["Vercel<br/>frontend hosts"]
-    SupaShared["Supabase<br/>(shared T-800 + HandyMan)"]
-    SupaCM["Supabase<br/>(Career Muse — separate)"]
+    Vercel["Vercel<br/>(web frontends)"]
+    SupaShared["Supabase: shared project<br/>(T-800 + HandyMan)"]
+    SupaCM["Supabase: career-muse project<br/>(separate)"]
   end
 
-  T800 -->|deploy| Vercel
-  HM -->|deploy| Vercel
-  CMOS -->|deploy| Vercel
-  T800 -->|edge fns| SupaShared
-  HM -->|edge fns| SupaShared
-  CMOS -->|edge fns| SupaCM
+  PR_GROUP ==>|"auto-deploy on push"| CLOUD
 
-  CS -. "raw URL import" .-> T800
-  CS -. "raw URL import" .-> HM
-
-  subgraph EXT [" 🔌 External APIs "]
+  subgraph EXT [" 🔌 External services the products call "]
     direction LR
-    AI["Anthropic Claude"]
-    CB["Cerebras"]
+    AI["Anthropic Claude<br/>(LLM)"]
+    CB["Cerebras<br/>(fallback LLM)"]
     Goog["Google APIs<br/>Calendar · Sheets · Gmail"]
-    WA["WhatsApp Cloud API"]
-    BN["Binance"]
-    PRX["Proxycurl"]
+    WA["WhatsApp Cloud API<br/>(Meta)"]
+    PRX["Proxycurl<br/>(LinkedIn enrichment)"]
+    BN["Binance<br/>(crypto exchange)"]
   end
 
-  SupaShared --> AI
-  SupaShared --> Goog
-  SupaShared --> WA
-  SupaCM --> AI
-  SupaCM --> PRX
-  MMT --> BN
-  MMT --> CB
+  CLOUD --> EXT
 
-  subgraph USERS [" 👥 End Users "]
+  subgraph USERS [" 👥 End users "]
     direction LR
-    WebU(["Web users"])
+    WebU(["browser users"])
     WAU(["WhatsApp users"])
   end
 
   WebU --> Vercel
   WAU --> WA
+  WA --> SupaShared
+
+  CS -. "imported at runtime by edge functions" .-> PR_GROUP
 
   classDef coreCls fill:#1d1730,stroke:#b48cff,color:#e7ecf3
   classDef sharedCls fill:#2a221a,stroke:#f0b86e,color:#e7ecf3
   classDef productCls fill:#162038,stroke:#7aa2ff,color:#e7ecf3
   classDef cloudCls fill:#162a22,stroke:#6cd28a,color:#e7ecf3
   classDef extCls fill:#251a25,stroke:#c98cff,color:#e7ecf3
+  classDef userCls fill:#251a35,stroke:#e0716b,color:#e7ecf3
   class BB,CFG coreCls
   class CS sharedCls
   class T800,HM,CMOS,MMT productCls
   class Vercel,SupaShared,SupaCM cloudCls
   class AI,CB,Goog,WA,BN,PRX extCls
+  class WebU,WAU userCls
 
-  click BB "#/basman-brain"
-  click CFG "#/claude-config"
-  click CS "#/calendar-skills"
-  click T800 "#/t-800"
-  click HM "#/handyman"
-  click CMOS "#/career-muse-os"
-  click MMT "#/money-machine"
-  click Vercel "#/vercel"
-  click SupaShared "#/supabase-shared"
-  click SupaCM "#/supabase-career-muse"
-  click AI "#/anthropic"
-  click CB "#/cerebras"
-  click Goog "#/google"
-  click WA "#/whatsapp"
-  click BN "#/binance"
+  click Basman "#/overview" "You. The product manager + builder. Writes prompts in VS Code; Claude Code does the typing."
+  click CC "#/operation" "Claude Code CLI — the AI agent running in your terminal. Writes code, edits files, runs commands. Uses memory + hooks."
+  click Hooks "#/claude-config" "Local automations in ~/.claude. Auto-loads cross-product principles into prompts, syncs state to GitHub on every session end, detects learnings from transcripts."
+  click BB "#/basman-brain" "basman-brain — Your personal/career knowledge. Two markdown files every Claude session reads at the start of any career conversation."
+  click CFG "#/claude-config" "claude-config — GitHub backup of Claude's operational state (hooks, skills, memory, settings). Auto-synced from ~/.claude. Lets any new machine restore the full setup in one command."
+  click CS "#/calendar-skills" "calendar-skills — Shared TypeScript module for Google Calendar + Hebrew/English time parsing. Used by T-800 + HandyMan via raw URL import. One fix, every product."
+  click T800 "#/t-800" "T-800 — Your personal assistant bot. Calendar, scheduling, WhatsApp-first. React frontend + Supabase Edge Function backend."
+  click HM "#/handyman" "HandyMan — WhatsApp bot for a handyman business. Reads/writes a canonical Google Sheet via Claude + Google Sheets API."
+  click CMOS "#/career-muse-os" "Career Muse OS — Your job-hunting OS. Tracks applications, enriches leads, drafts outreach. Long-term plan: turn it into a fully autonomous career agent."
+  click MMT "#/money-machine" "Money Machine — Crypto trading bot (built, deposit blocked) + multi-language content site generator."
+  click Vercel "#/vercel" "Vercel — Hosts your React frontends. Auto-deploys on every git push (except HandyMan's web/ which needs manual deploy)."
+  click SupaShared "#/supabase-shared" "Shared Supabase project — Postgres database + serverless Edge Functions (small TS backends). 22 tables, 21 edge functions. Powers T-800 + HandyMan from one place. Click to drill into the tables and functions."
+  click SupaCM "#/supabase-career-muse" "Career Muse Supabase project — Fully separate from the shared one. 27 tables, 22 edge functions. Free tier, auto-pauses after ~7 days idle."
+  click AI "#/anthropic" "Anthropic Claude API — The primary LLM. Claude Sonnet 4.6 used by T-800, HandyMan, and Career Muse for chat + agent work."
+  click CB "#/cerebras" "Cerebras — Fast, cheap inference (qwen-3-235b). Used as T-800's fallback when Claude is rate-limited, and as the primary engine for content-machine."
+  click Goog "#/google" "Google APIs — Calendar (T-800), Sheets (HandyMan), Gmail (Career Muse). Three separate Google Cloud projects, one per product."
+  click WA "#/whatsapp" "WhatsApp Cloud API (Meta) — One business number serves T-800 + HandyMan. Routing by phone via the users_wa table."
+  click PRX "#/google" "Proxycurl — LinkedIn profile enrichment. Used by Career Muse to enrich outreach targets."
+  click BN "#/binance" "Binance — Crypto exchange where the Money Machine trading bot would execute orders. Currently blocked at deposit (Israeli card rejected)."
+  click WebU "#/overview" "Browser users — anyone who opens your Vercel-hosted web apps."
+  click WAU "#/whatsapp" "WhatsApp users — anyone messaging your business number. Routed by phone to T-800 or HandyMan."
     </pre>
   </div>
 
@@ -434,7 +475,7 @@ flowchart LR
   subgraph DEPLOY [" 3. AUTO-DEPLOY "]
     direction TB
     Vcl["Vercel<br/>builds frontends"]
-    SBE["Supabase<br/>deploys edge fns + migrations"]
+    SBE["Supabase<br/>deploys Edge Functions + migrations"]
     AutoPR["Auto-PR bot<br/>(calendar-skills releases)"]
   end
 
@@ -473,17 +514,17 @@ flowchart LR
   class Vcl,SBE,AutoPR depCls
   class EU,Web,WAP,Run_V,Run_SB,Run_AI,Run_Ext runCls
 
-  click Cfg "#/claude-config"
-  click Brain "#/basman-brain"
-  click Cal "#/calendar-skills"
-  click Prods "#/overview"
-  click Vcl "#/vercel"
-  click SBE "#/supabase"
-  click Run_AI "#/anthropic"
-  click Run_Ext "#/google"
-  click StopH "https://github.com/basmanab88-lab/claude-config/blob/main/hooks/sync-claude-config.js" _blank
-  click Hooks "https://github.com/basmanab88-lab/claude-config/blob/main/hooks/inject-principles.js" _blank
-  click PR "https://github.com/basmanab88-lab/claude-config/blob/main/PRINCIPLES.md" _blank
+  click Cfg "#/claude-config" "claude-config repo — Backup of all Claude operational state. Auto-synced from ~/.claude on every session end."
+  click Brain "#/basman-brain" "basman-brain repo — Your personal/career knowledge."
+  click Cal "#/calendar-skills" "calendar-skills repo — Shared calendar logic. Public repo (needed for raw URL fetch from Edge Functions)."
+  click Prods "#/overview" "All product repos: t-800, handyman, career-muse-os, money-machine."
+  click Vcl "#/vercel" "Vercel — Hosts the React frontends. Auto-deploys on every push."
+  click SBE "#/supabase" "Supabase — Two projects (shared + Career Muse). Postgres database + serverless Edge Functions. Auto-deploys edge fns on push."
+  click Run_AI "#/anthropic" "Claude API + Cerebras — The LLMs that power the products' chat and agent logic."
+  click Run_Ext "#/google" "External APIs called from Edge Functions: Google Calendar/Sheets/Gmail, WhatsApp Cloud webhook, Binance."
+  click StopH "https://github.com/basmanab88-lab/claude-config/blob/main/hooks/sync-claude-config.js" "Stop hook — runs after every Claude session ends. Pulls latest, then commits + pushes ~/.claude changes." _blank
+  click Hooks "https://github.com/basmanab88-lab/claude-config/blob/main/hooks/inject-principles.js" "UserPromptSubmit hook — when your prompt mentions agent/bot/webhook/etc, this hook auto-loads PRINCIPLES.md into Claude's context." _blank
+  click PR "https://github.com/basmanab88-lab/claude-config/blob/main/PRINCIPLES.md" "PRINCIPLES.md — Cross-product engineering rules learned from real bugs. Applied automatically when relevant." _blank
     </pre>
   </div>
 
@@ -577,9 +618,9 @@ flowchart TD
   class S1,S2,S3 sess
   class Ctx,Career mem
 
-  click Ctx "https://github.com/basmanab88-lab/basman-brain/blob/main/memory/context.md" _blank
-  click Career "https://github.com/basmanab88-lab/basman-brain/blob/main/memory/career_state.md" _blank
-  click Hook "https://github.com/basmanab88-lab/claude-config/tree/main/hooks" _blank
+  click Ctx "https://github.com/basmanab88-lab/basman-brain/blob/main/memory/context.md" "context.md — Slow-changing facts about Basman. Profile, projects, preferences. Read at start of every career session." _blank
+  click Career "https://github.com/basmanab88-lab/basman-brain/blob/main/memory/career_state.md" "career_state.md — Active career mindset, decisions in progress, open questions." _blank
+  click Hook "https://github.com/basmanab88-lab/claude-config/tree/main/hooks" "Hooks — Local scripts that auto-load this memory when a career prompt is detected." _blank
     </pre>
   </div>
 
@@ -653,15 +694,15 @@ flowchart LR
   class StopHook,InjectH,DetectH hook
   class Repo repo
 
-  click PR "https://github.com/basmanab88-lab/claude-config/blob/main/PRINCIPLES.md" _blank
-  click LQ "https://github.com/basmanab88-lab/claude-config/blob/main/LEARNINGS_QUEUE.md" _blank
-  click Routing "https://github.com/basmanab88-lab/claude-config/blob/main/ROUTING.md" _blank
-  click HooksDir "https://github.com/basmanab88-lab/claude-config/tree/main/hooks" _blank
-  click SkillsDir "https://github.com/basmanab88-lab/claude-config/tree/main/skills" _blank
-  click Setup "https://github.com/basmanab88-lab/claude-config/blob/main/setup-new-machine.sh" _blank
-  click StopHook "https://github.com/basmanab88-lab/claude-config/blob/main/hooks/sync-claude-config.js" _blank
-  click InjectH "https://github.com/basmanab88-lab/claude-config/blob/main/hooks/inject-principles.js" _blank
-  click DetectH "https://github.com/basmanab88-lab/claude-config/blob/main/hooks/detect-learnings.js" _blank
+  click PR "https://github.com/basmanab88-lab/claude-config/blob/main/PRINCIPLES.md" "Cross-product engineering principles, learned from real bugs. Auto-injected when prompt matches keywords." _blank
+  click LQ "https://github.com/basmanab88-lab/claude-config/blob/main/LEARNINGS_QUEUE.md" "Auto-collected learning candidates scraped from session transcripts." _blank
+  click Routing "https://github.com/basmanab88-lab/claude-config/blob/main/ROUTING.md" "Intent → repo routing rules. Tells Claude which repo to work in when a prompt is ambiguous." _blank
+  click HooksDir "https://github.com/basmanab88-lab/claude-config/tree/main/hooks" "All Claude Code hooks: sync, inject, detect." _blank
+  click SkillsDir "https://github.com/basmanab88-lab/claude-config/tree/main/skills" "Custom agent skills — modular instructions for specific tasks." _blank
+  click Setup "https://github.com/basmanab88-lab/claude-config/blob/main/setup-new-machine.sh" "One-shot bootstrap script. On a fresh machine: clone this repo, run this script, ~/.claude is restored." _blank
+  click StopHook "https://github.com/basmanab88-lab/claude-config/blob/main/hooks/sync-claude-config.js" "Stop hook — runs after every Claude session. Pulls + commits + pushes ~/.claude state." _blank
+  click InjectH "https://github.com/basmanab88-lab/claude-config/blob/main/hooks/inject-principles.js" "UserPromptSubmit hook — loads PRINCIPLES.md into context when prompt matches keywords." _blank
+  click DetectH "https://github.com/basmanab88-lab/claude-config/blob/main/hooks/detect-learnings.js" "Stop hook — scans transcripts for learning markers and appends to LEARNINGS_QUEUE.md." _blank
     </pre>
   </div>
 
@@ -738,10 +779,10 @@ flowchart TD
   class Public,Release pub
   class T800Edge,HMEdge,T800Repo,HMRepo cons
 
-  click Public "https://github.com/basmanab88-lab/calendar-skills" _blank
-  click T800Edge "https://github.com/basmanab88-lab/t-800/tree/main/supabase/functions" _blank
-  click HMEdge "https://github.com/basmanab88-lab/handyman/tree/main/supabase/functions" _blank
-  click Release "https://github.com/basmanab88-lab/calendar-skills/releases" _blank
+  click Public "https://github.com/basmanab88-lab/calendar-skills" "The public raw URL surface — what consumer Edge Functions fetch at runtime." _blank
+  click T800Edge "https://github.com/basmanab88-lab/t-800/tree/main/supabase/functions" "T-800's Edge Functions — small TypeScript backends that fetch calendar-skills at runtime." _blank
+  click HMEdge "https://github.com/basmanab88-lab/handyman/tree/main/supabase/functions" "HandyMan's Edge Functions — same pattern as T-800." _blank
+  click Release "https://github.com/basmanab88-lab/calendar-skills/releases" "Tagged releases. v1.0.1 is the current version (2026-04-30)." _blank
     </pre>
   </div>
 
@@ -830,14 +871,14 @@ flowchart LR
   class FE,Chat,DB,Mig repoCls
   class Claude,GCal,WAWebhook,CalLib extCls
 
-  click FE "https://github.com/basmanab88-lab/t-800/tree/main/src" _blank
-  click Chat "https://github.com/basmanab88-lab/t-800/tree/main/supabase/functions/chat" _blank
-  click Mig "https://github.com/basmanab88-lab/t-800/tree/main/supabase/migrations" _blank
-  click DB "#/supabase-shared"
-  click Claude "#/anthropic"
-  click GCal "#/google"
-  click WAWebhook "#/whatsapp"
-  click CalLib "#/calendar-skills"
+  click FE "https://github.com/basmanab88-lab/t-800/tree/main/src" "Frontend source — React + Vite + TS. The web UI Basman uses for testing." _blank
+  click Chat "https://github.com/basmanab88-lab/t-800/tree/main/supabase/functions/chat" "chat Edge Function — small TS server-side handler. Receives a message, calls Claude, calls Google Calendar, returns a reply." _blank
+  click Mig "https://github.com/basmanab88-lab/t-800/tree/main/supabase/migrations" "Database migrations — SQL files that define and evolve the schema." _blank
+  click DB "#/supabase-shared" "Supabase database — shared with HandyMan. Click to see all tables + edge functions."
+  click Claude "#/anthropic" "Anthropic Claude API — the LLM brain. Sonnet 4.6."
+  click GCal "#/google" "Google Calendar API — read/create events on Basman's calendar."
+  click WAWebhook "#/whatsapp" "WhatsApp Cloud webhook — Meta delivers incoming messages here."
+  click CalLib "#/calendar-skills" "calendar-skills — Shared calendar parsing library. Imported at runtime via raw URL."
     </pre>
   </div>
 
@@ -932,14 +973,14 @@ flowchart LR
   class Web,Router,Skills,UserTable repoCls
   class WA,ClaudeAPI,Sheets,CalLib extCls
 
-  click Web "https://github.com/basmanab88-lab/handyman/tree/main/web" _blank
-  click Router "https://github.com/basmanab88-lab/handyman/tree/main/supabase/functions" _blank
-  click Skills "https://github.com/basmanab88-lab/handyman/tree/main/skills" _blank
-  click UserTable "#/supabase-shared"
-  click WA "#/whatsapp"
-  click ClaudeAPI "#/anthropic"
-  click Sheets "#/google"
-  click CalLib "#/calendar-skills"
+  click Web "https://github.com/basmanab88-lab/handyman/tree/main/web" "Test console frontend — separate Vercel app at /handyman-test. ⚠ No auto-deploy: run `vercel --prod` manually after every push." _blank
+  click Router "https://github.com/basmanab88-lab/handyman/tree/main/supabase/functions" "All HandyMan Edge Functions (hm2-webhook, handyman-setup, -qa, -monitor, etc.)." _blank
+  click Skills "https://github.com/basmanab88-lab/handyman/tree/main/skills" "Operational skills — self-review protocol, deploy checklist, etc." _blank
+  click UserTable "#/supabase-shared" "users_wa table — routes inbound WhatsApp messages to T-800 or HandyMan by phone number."
+  click WA "#/whatsapp" "WhatsApp Cloud — shared business number. Click to see the full routing flow."
+  click ClaudeAPI "#/anthropic" "Anthropic Claude API — drives the conversation and tool-use."
+  click Sheets "#/google" "Google Sheets API — reads/writes Eilon's canonical customer sheet."
+  click CalLib "#/calendar-skills" "calendar-skills — shared calendar logic, imported at runtime."
     </pre>
   </div>
 
@@ -1011,7 +1052,7 @@ flowchart LR
   subgraph Repo [" 📦 Repo: career-muse-os "]
     direction TB
     FE["src/<br/>React + shadcn/ui"]
-    Edges["supabase/functions/<br/>edge fns"]
+    Edges["supabase/functions/<br/>Edge Functions"]
     DB[("Supabase DB<br/>(separate from shared)")]
     FE -->|HTTPS| Edges
     Edges <--> DB
@@ -1035,12 +1076,12 @@ flowchart LR
   class Claude,Proxy,Gmail,Vercel extCls
   class Note warnCls
 
-  click FE "https://github.com/basmanab88-lab/career-muse-os/tree/main/src" _blank
-  click Edges "https://github.com/basmanab88-lab/career-muse-os/tree/main/supabase" _blank
-  click DB "#/supabase-career-muse"
-  click Vercel "#/vercel"
-  click Claude "#/anthropic"
-  click Gmail "#/google"
+  click FE "https://github.com/basmanab88-lab/career-muse-os/tree/main/src" "Frontend source — React + shadcn/ui." _blank
+  click Edges "https://github.com/basmanab88-lab/career-muse-os/tree/main/supabase" "All 22 Edge Functions: jobs ingest/classify, CV tailoring, outreach generation, agent loop." _blank
+  click DB "#/supabase-career-muse" "Career Muse Supabase project — 27 tables. Click to see them grouped by role."
+  click Vercel "#/vercel" "Vercel — Hosts the React frontend at career-muse-os.vercel.app."
+  click Claude "#/anthropic" "Anthropic Claude — powers the agent and CV/outreach generation."
+  click Gmail "#/google" "Gmail API — for sending outreach emails from basman@visitt.io."
     </pre>
   </div>
 
@@ -1127,9 +1168,9 @@ flowchart LR
   class Binance,Cerebras extCls
   class Block blockCls
 
-  click Bot "https://github.com/basmanab88-lab/money-machine/tree/main/src" _blank
-  click Binance "#/binance"
-  click Cerebras "#/cerebras"
+  click Bot "https://github.com/basmanab88-lab/money-machine/tree/main/src" "Trading bot source — Node.js + ccxt. Strategy + execution." _blank
+  click Binance "#/binance" "Binance — crypto exchange. Trading bot would execute orders here. Currently blocked at deposit."
+  click Cerebras "#/cerebras" "Cerebras — Fast cheap inference for content-machine's multi-language article generation."
     </pre>
   </div>
 
@@ -1247,8 +1288,8 @@ flowchart LR
   HM["HandyMan"]
   CMOS["Career Muse OS"]
 
-  SupaShared["Shared Supabase project<br/>22 tables · 21 edge fns<br/>region: ap-southeast-1"]
-  SupaCM["Career Muse Supabase<br/>27 tables · 22 edge fns<br/>region: eu-central-1<br/>⚠ free tier · auto-pauses"]
+  SupaShared["Shared Supabase project<br/>22 tables · 21 Edge Functions<br/>region: ap-southeast-1"]
+  SupaCM["Career Muse Supabase<br/>27 tables · 22 Edge Functions<br/>region: eu-central-1<br/>⚠ free tier · auto-pauses"]
 
   T800 --> SupaShared
   HM --> SupaShared
@@ -1259,11 +1300,11 @@ flowchart LR
   class T800,HM,CMOS p
   class SupaShared,SupaCM i
 
-  click T800 "#/t-800"
-  click HM "#/handyman"
-  click CMOS "#/career-muse-os"
-  click SupaShared "#/supabase-shared"
-  click SupaCM "#/supabase-career-muse"
+  click T800 "#/t-800" "T-800 — uses the shared Supabase project."
+  click HM "#/handyman" "HandyMan — uses the shared Supabase project, same DB as T-800."
+  click CMOS "#/career-muse-os" "Career Muse — uses its own separate Supabase project."
+  click SupaShared "#/supabase-shared" "Shared Supabase project — 22 tables, 21 edge functions. Drill in →"
+  click SupaCM "#/supabase-career-muse" "Career Muse Supabase project — 27 tables, 22 edge functions. Drill in →"
     </pre>
   </div>
 
@@ -1388,9 +1429,9 @@ flowchart TB
   class t_chat,t_msg,t_tasks,t_items,t_act,t_set,t_notes,hm_sess,hm_users,hm_inc,hm_q,hm_dbg,hm_more tbl
   class users_wa,usage_log,wa_proc,wh_reg shared
 
-  click WA "#/whatsapp"
-  click chat "https://github.com/basmanab88-lab/t-800/tree/main/supabase/functions/chat" _blank
-  click hm2_webhook "https://github.com/basmanab88-lab/handyman/tree/main/supabase/functions" _blank
+  click WA "#/whatsapp" "WhatsApp Cloud webhook — Meta delivers inbound messages here. verify_jwt must be false."
+  click chat "https://github.com/basmanab88-lab/t-800/tree/main/supabase/functions/chat" "chat Edge Function — T-800's main LLM handler. Receives a message, drives Claude, calls Google Calendar, returns reply." _blank
+  click hm2_webhook "https://github.com/basmanab88-lab/handyman/tree/main/supabase/functions" "hm2-webhook — HandyMan's main entry point. verify_jwt: false because Meta's webhook doesn't carry a JWT." _blank
     </pre>
   </div>
 
@@ -1524,7 +1565,7 @@ flowchart TB
   class ext_pair,ext_ingest,jobs_ingest,sync_jobs,jobs_classify,enrich_dir,li_enrich,sync_tm,gen_emb,resume_tailor,cv_async,cv_copy,outreach_gen,msg_gen,job_alerts,agent,agent_run,search_i,brain ef
   class jobs,contacts,resumes,outreach,li_cache,google_t,agent_tbl,brain_tbl,misc tbl
 
-  click Web "#/career-muse-os"
+  click Web "#/career-muse-os" "Career Muse OS web app — the React frontend."
     </pre>
   </div>
 
@@ -1600,9 +1641,9 @@ flowchart LR
   class R_T,R_CM,R_HM repo
   class D_T,D_CM dep
 
-  click R_T "#/t-800"
-  click R_HM "#/handyman"
-  click R_CM "#/career-muse-os"
+  click R_T "#/t-800" "T-800 repo — its frontend deploys to t-800-beryl.vercel.app on push."
+  click R_HM "#/handyman" "handyman repo — the web/ folder is the test console. ⚠ Manual deploy: `vercel --prod`."
+  click R_CM "#/career-muse-os" "career-muse-os repo — deploys to career-muse-os.vercel.app on push."
     </pre>
   </div>
 
@@ -1664,9 +1705,9 @@ flowchart LR
   class WA,Webhook_T,Webhook_H ext
   class ChatLogic,HMLogic,UsersWA logic
 
-  click UsersWA "#/supabase-shared"
-  click Webhook_T "#/t-800"
-  click Webhook_H "#/handyman"
+  click UsersWA "#/supabase-shared" "users_wa table — routes inbound by phone number to T-800 or HandyMan."
+  click Webhook_T "#/t-800" "T-800 page — for the full T-800 architecture."
+  click Webhook_H "#/handyman" "HandyMan page — for the full HandyMan architecture."
     </pre>
   </div>
 
@@ -1749,9 +1790,9 @@ flowchart LR
   class P_T800,P_HM,P_CM gcp
   class Cal,Sheets,Gmail,Tasks api
 
-  click T800 "#/t-800"
-  click HM "#/handyman"
-  click CMOS "#/career-muse-os"
+  click T800 "#/t-800" "T-800 — uses Google Calendar + Tasks APIs."
+  click HM "#/handyman" "HandyMan — uses Google Sheets API via service account."
+  click CMOS "#/career-muse-os" "Career Muse — uses Gmail API for outreach."
     </pre>
   </div>
 
@@ -1810,10 +1851,10 @@ flowchart LR
   class T800,HM,CMOS prod
   class Claude ai
 
-  click T800 "#/t-800"
-  click HM "#/handyman"
-  click CMOS "#/career-muse-os"
-  click UL "#/supabase-shared"
+  click T800 "#/t-800" "T-800 — uses Claude in the chat Edge Function."
+  click HM "#/handyman" "HandyMan — uses Claude in hm2-webhook, handyman-qa, handyman-incident-responder."
+  click CMOS "#/career-muse-os" "Career Muse — uses Claude in agent/run, resume-tailor, outreach-generate, etc."
+  click UL "#/supabase-shared" "usage_log table — tracks tokens + cost per Claude call. Catch runaway prompts."
     </pre>
   </div>
 
@@ -1867,8 +1908,8 @@ flowchart LR
   class T800,Content prod
   class Cerebras ai
 
-  click T800 "#/t-800"
-  click Content "#/money-machine"
+  click T800 "#/t-800" "T-800 — uses Cerebras as a fallback when Claude is rate-limited."
+  click Content "#/money-machine" "content-machine — uses Cerebras as the primary LLM for article generation."
     </pre>
   </div>
 
@@ -1913,7 +1954,7 @@ flowchart LR
   class Bot p
   class Binance ext
 
-  click Bot "#/money-machine"
+  click Bot "#/money-machine" "Trading bot — see the Money Machine page for the full picture."
     </pre>
   </div>
 
@@ -1931,6 +1972,8 @@ flowchart LR
 
 </main>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
 
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
@@ -1950,15 +1993,75 @@ flowchart LR
       fontFamily: 'ui-sans-serif, -apple-system, "Segoe UI", Roboto, Inter, system-ui, sans-serif'
     },
     flowchart: {
-      useMaxWidth: true,
+      useMaxWidth: false,
       htmlLabels: true,
       curve: 'basis',
-      diagramPadding: 16
+      diagramPadding: 24,
+      nodeSpacing: 50,
+      rankSpacing: 70
     }
   });
 
   // Render all mermaid blocks once on load
   await mermaid.run({ querySelector: 'pre.mermaid' });
+
+  // Wrap each rendered SVG with pan-zoom
+  function applyPanZoom() {
+    document.querySelectorAll('.diagram .mermaid svg').forEach(svg => {
+      if (svg.__panZoomApplied) return;
+      svg.__panZoomApplied = true;
+      // mermaid sets these inline; we need them to fill the container
+      svg.removeAttribute('width');
+      svg.removeAttribute('height');
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      svg.style.maxWidth = 'none';
+      svg.style.width = '100%';
+      svg.style.height = '100%';
+      try {
+        svg.__panZoom = svgPanZoom(svg, {
+          zoomEnabled: true,
+          panEnabled: true,
+          controlIconsEnabled: true,
+          fit: true,
+          center: true,
+          minZoom: 0.3,
+          maxZoom: 8,
+          contain: false,
+          dblClickZoomEnabled: true,
+          mouseWheelZoomEnabled: true,
+          preventMouseEventsDefault: false,
+        });
+      } catch (e) { console.warn('pan-zoom init failed', e); }
+    });
+  }
+  applyPanZoom();
+
+  // Inject pan-zoom hint into every diagram container
+  document.querySelectorAll('.diagram').forEach(d => {
+    if (d.querySelector('.pan-hint')) return;
+    const hint = document.createElement('div');
+    hint.className = 'pan-hint';
+    hint.innerHTML = 'drag to pan · <kbd>scroll</kbd> to zoom · hover any box for details';
+    d.appendChild(hint);
+  });
+
+  // Re-fit pan-zoom when a page becomes visible (its container size may have changed)
+  window.addEventListener('hashchange', () => {
+    setTimeout(() => {
+      document.querySelectorAll('.page.active .diagram .mermaid svg').forEach(svg => {
+        if (svg.__panZoom) {
+          try { svg.__panZoom.resize(); svg.__panZoom.fit(); svg.__panZoom.center(); } catch (e) {}
+        }
+      });
+    }, 50);
+  });
+  window.addEventListener('resize', () => {
+    document.querySelectorAll('.diagram .mermaid svg').forEach(svg => {
+      if (svg.__panZoom) {
+        try { svg.__panZoom.resize(); svg.__panZoom.fit(); svg.__panZoom.center(); } catch (e) {}
+      }
+    });
+  });
 </script>
 
 <script>
